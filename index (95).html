@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TCC Trader — PNL Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14;
+  --bg2: #13161d;
+  --bg3: #1a1e28;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8eaf0;
+  --text2: #7a7f96;
+  --text3: #4a4f66;
+  --green: #1d9e75;
+  --green2: #0f6e56;
+  --greenLight: #9fe1cb;
+  --red: #d85a30;
+  --redLight: #f5c4b3;
+  --amber: #ef9f27;
+  --purple: #7f77dd;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans Thai', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+
+/* ── Layout ── */
+.shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+.sidebar { background: var(--bg2); border-right: 1px solid var(--border); padding: 0; display: flex; flex-direction: column; }
+.main { overflow: hidden; }
+
+/* ── Sidebar ── */
+.logo { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
+.logo-mark { font-size: 11px; font-weight: 600; letter-spacing: .12em; color: var(--text2); text-transform: uppercase; margin-bottom: 4px; }
+.logo-name { font-size: 18px; font-weight: 600; color: var(--text); }
+.logo-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+.nav { padding: 16px 12px; flex: 1; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; cursor: pointer; color: var(--text2); font-size: 13px; font-weight: 400; transition: all .15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active { background: rgba(29,158,117,.12); color: var(--greenLight); }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .5; flex-shrink: 0; }
+.nav-item.active .nav-dot { opacity: 1; background: var(--green); }
+
+.sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); }
+.config-hint { font-size: 11px; color: var(--text3); line-height: 1.5; }
+.config-hint a { color: var(--purple); text-decoration: none; }
+
+/* ── Top Bar ── */
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 28px; border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 10; }
+.page-title { font-size: 16px; font-weight: 500; }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.badge-live { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--green); font-family: var(--mono); }
+.dot-live { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+.btn { padding: 7px 14px; border-radius: 7px; border: 1px solid var(--border2); background: var(--bg3); color: var(--text2); font-family: var(--sans); font-size: 12px; cursor: pointer; transition: all .15s; }
+.btn:hover { color: var(--text); border-color: var(--border2); }
+.btn.primary { background: var(--green2); border-color: var(--green); color: #fff; }
+.btn.primary:hover { background: var(--green); }
+
+/* ── Content ── */
+.content { padding: 24px 28px; }
+
+/* ── Config Panel ── */
+.config-panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+.config-panel h3 { font-size: 13px; font-weight: 500; color: var(--text2); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 16px; }
+.config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field label { display: block; font-size: 11px; color: var(--text3); margin-bottom: 5px; letter-spacing: .04em; }
+.field input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 8px 12px; color: var(--text); font-family: var(--mono); font-size: 12px; outline: none; transition: border .15s; }
+.field input:focus { border-color: var(--green2); }
+.field.full { grid-column: 1 / -1; }
+.config-actions { display: flex; gap: 8px; margin-top: 16px; }
+.save-status { font-size: 12px; color: var(--green); margin-left: 8px; align-self: center; display: none; }
+
+/* ── Stats Row ── */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; }
+.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+.stat-value { font-size: 26px; font-weight: 600; font-family: var(--mono); line-height: 1; }
+.stat-value.green { color: var(--greenLight); }
+.stat-value.red { color: var(--redLight); }
+.stat-value.amber { color: var(--amber); }
+.stat-sub { font-size: 11px; color: var(--text3); margin-top: 4px; font-family: var(--mono); }
+
+/* ── Table ── */
+.table-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.table-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.table-title { font-size: 13px; font-weight: 500; }
+.filter-row { display: flex; gap: 8px; align-items: center; }
+.filter-input { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; color: var(--text2); font-family: var(--sans); font-size: 12px; outline: none; width: 160px; }
+.filter-input:focus { border-color: var(--green2); color: var(--text); }
+select.filter-input { cursor: pointer; }
+
+table { width: 100%; border-collapse: collapse; }
+th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 500; color: var(--text3); letter-spacing: .06em; text-transform: uppercase; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 11px 16px; font-size: 13px; border-bottom: 1px solid var(--border); color: var(--text2); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg3); color: var(--text); }
+.mono { font-family: var(--mono); }
+
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; font-family: var(--mono); }
+.tag.win { background: rgba(29,158,117,.15); color: var(--greenLight); }
+.tag.loss { background: rgba(216,90,48,.15); color: var(--redLight); }
+.tag.long { background: rgba(29,158,117,.1); color: var(--green); }
+.tag.short { background: rgba(216,90,48,.1); color: var(--red); }
+
+.pnl-pos { color: var(--greenLight); font-family: var(--mono); font-weight: 500; }
+.pnl-neg { color: var(--redLight); font-family: var(--mono); font-weight: 500; }
+
+/* ── Empty / Loading ── */
+.empty { padding: 48px; text-align: center; color: var(--text3); font-size: 13px; }
+.spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border2); border-top-color: var(--green); border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Page sections ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .config-grid { grid-template-columns: 1fr; }
+  .content { padding: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">TCC Group</div>
+      <div class="logo-name">PNL Dashboard</div>
+      <div class="logo-sub">Trader Management</div>
+    </div>
+    <nav class="nav">
+      <button class="nav-item active" onclick="showPage('overview')">
+        <span class="nav-dot"></span> Overview
+      </button>
+      <button class="nav-item" onclick="showPage('logs')">
+        <span class="nav-dot"></span> PNL Log
+      </button>
+      <button class="nav-item" onclick="showPage('members')">
+        <span class="nav-dot"></span> สมาชิก
+      </button>
+      <button class="nav-item" onclick="showPage('settings')">
+        <span class="nav-dot"></span> ตั้งค่า
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="config-hint">
+        ข้อมูลดึงจาก Google Sheets<br>
+        ผ่าน <a href="#" onclick="showPage('settings')">Sheets API</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="topbar">
+      <span class="page-title" id="pageTitle">Overview</span>
+      <div class="topbar-right">
+        <div class="badge-live"><span class="dot-live"></span> Live</div>
+        <button class="btn" onclick="loadData()">รีเฟรช</button>
+        <button class="btn primary" onclick="showPage('settings')">ตั้งค่า API</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ── OVERVIEW ── -->
+      <div class="page active" id="page-overview">
+        <div class="stats" id="statsRow">
+          <div class="stat-card">
+            <div class="stat-label">Trade ทั้งหมด</div>
+            <div class="stat-value" id="stat-total">—</div>
+            <div class="stat-sub" id="stat-total-sub">กำลังโหลด...</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">PNL รวม (USDT)</div>
+            <div class="stat-value" id="stat-pnl">—</div>
+            <div class="stat-sub" id="stat-pnl-sub">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Win Rate</div>
+            <div class="stat-value amber" id="stat-winrate">—</div>
+            <div class="stat-sub" id="stat-wr-sub">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">สมาชิก</div>
+            <div class="stat-value" id="stat-members">—</div>
+            <div class="stat-sub" id="stat-members-sub">—</div>
+          </div>
+        </div>
+
+        <!-- ล่าสุด 10 รายการ -->
+        <div class="table-wrap">
+          <div class="table-header">
+            <span class="table-title">Trade ล่าสุด</span>
+          </div>
+          <div id="recentTable"><div class="empty"><div class="spinner"></div><br>กำลังโหลด...</div></div>
+        </div>
+      </div>
+
+      <!-- ── PNL LOGS ── -->
+      <div class="page" id="page-logs">
+        <div class="table-wrap">
+          <div class="table-header">
+            <span class="table-title">PNL Log ทั้งหมด</span>
+            <div class="filter-row">
+              <input class="filter-input" id="filterName" placeholder="ค้นหาชื่อ..." oninput="renderLogs()">
+              <select class="filter-input" id="filterWL" onchange="renderLogs()">
+                <option value="">WIN/LOSS</option>
+                <option value="WIN">WIN</option>
+                <option value="LOSS">LOSS</option>
+              </select>
+              <select class="filter-input" id="filterTeam" onchange="renderLogs()">
+                <option value="">ทีมทั้งหมด</option>
+              </select>
+            </div>
+          </div>
+          <div id="logsTable"><div class="empty"><div class="spinner"></div><br>กำลังโหลด...</div></div>
+        </div>
+      </div>
+
+      <!-- ── MEMBERS ── -->
+      <div class="page" id="page-members">
+        <div class="table-wrap">
+          <div class="table-header">
+            <span class="table-title">รายชื่อสมาชิก</span>
+            <div class="filter-row">
+              <input class="filter-input" id="filterMemberName" placeholder="ค้นหา..." oninput="renderMembers()">
+            </div>
+          </div>
+          <div id="membersTable"><div class="empty"><div class="spinner"></div><br>กำลังโหลด...</div></div>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS ── -->
+      <div class="page" id="page-settings">
+        <div class="config-panel">
+          <h3>การตั้งค่า API</h3>
+          <div class="config-grid">
+            <div class="field full">
+              <label>GOOGLE SHEETS ID</label>
+              <input id="cfg-sheetId" placeholder="1Ug3oGQtx51rIagN2UlAwdBV5G6jZTBefh0JQPSE2yOQ" type="text">
+            </div>
+            <div class="field full">
+              <label>GOOGLE SHEETS API KEY (สร้างที่ Google Cloud Console → APIs → Sheets API)</label>
+              <input id="cfg-apiKey" placeholder="AIzaSy..." type="password">
+            </div>
+          </div>
+          <div class="config-actions">
+            <button class="btn primary" onclick="saveConfig()">บันทึกและโหลดข้อมูล</button>
+            <button class="btn" onclick="clearConfig()">ล้างข้อมูล</button>
+            <span class="save-status" id="saveStatus">บันทึกแล้ว</span>
+          </div>
+          <div style="margin-top:20px;padding:16px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+            <div style="font-size:12px;color:var(--text2);line-height:1.8">
+              <strong style="color:var(--text);display:block;margin-bottom:8px">วิธีสร้าง Google Sheets API Key (ฟรี)</strong>
+              1. ไปที่ <strong>console.cloud.google.com</strong><br>
+              2. สร้างโปรเจกต์ใหม่ หรือเลือกโปรเจกต์เดิม<br>
+              3. ไปที่ APIs &amp; Services → Enable APIs → ค้นหา "Google Sheets API" → Enable<br>
+              4. ไปที่ Credentials → Create Credentials → API Key<br>
+              5. คัดลอก API Key มาใส่ช่องด้านบน<br>
+              6. ตั้งค่า Spreadsheet ให้เป็น <strong>Anyone with the link can view</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="config-panel">
+          <h3>โครงสร้าง Google Sheets</h3>
+          <div style="font-size:12px;color:var(--text2);line-height:1.8">
+            <strong style="color:var(--text)">แท็บ "Member"</strong> — คอลัมน์: A=MemberID, B=LineName, C=RealName, D=Team, E=LineUserID<br>
+            <strong style="color:var(--text)">แท็บ "PNL Log"</strong> — คอลัมน์: A=LogID, B=MemberID, C=LineName, D=RealName, E=Team, F=Date, G=Symbol, H=Direction, I=ContractType, J=Leverage, K=EntryPrice, L=ExitPrice, M=PNL_USDT, N=PNL%, O=WinLoss, P=RecordedBy, Q=Timestamp
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+const PAGES = { overview: 'Overview', logs: 'PNL Log', members: 'สมาชิก', settings: 'ตั้งค่า' };
+let allLogs = [], allMembers = [];
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b => {
+    if (b.getAttribute('onclick').includes("'" + id + "'")) b.classList.add('active');
+  });
+  document.getElementById('pageTitle').textContent = PAGES[id] || id;
+}
+
+function getConfig() {
+  return {
+    sheetId: localStorage.getItem('tcc_sheetId') || '',
+    apiKey: localStorage.getItem('tcc_apiKey') || '',
+  };
+}
+
+function saveConfig() {
+  const sheetId = document.getElementById('cfg-sheetId').value.trim();
+  const apiKey = document.getElementById('cfg-apiKey').value.trim();
+  if (!sheetId || !apiKey) { alert('กรุณากรอก Sheet ID และ API Key'); return; }
+  localStorage.setItem('tcc_sheetId', sheetId);
+  localStorage.setItem('tcc_apiKey', apiKey);
+  const s = document.getElementById('saveStatus');
+  s.style.display = 'inline';
+  setTimeout(() => s.style.display = 'none', 2000);
+  loadData();
+}
+
+function clearConfig() {
+  localStorage.removeItem('tcc_sheetId');
+  localStorage.removeItem('tcc_apiKey');
+  document.getElementById('cfg-sheetId').value = '';
+  document.getElementById('cfg-apiKey').value = '';
+}
+
+async function fetchSheet(sheetName) {
+  const { sheetId, apiKey } = getConfig();
+  if (!sheetId || !apiKey) return null;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(sheetName)}?key=${apiKey}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Sheets API error: ' + res.status);
+  const data = await res.json();
+  return data.values || [];
+}
+
+async function loadData() {
+  const { sheetId, apiKey } = getConfig();
+  if (!sheetId || !apiKey) {
+    document.getElementById('recentTable').innerHTML = '<div class="empty">กรุณาตั้งค่า API ก่อน → คลิก "ตั้งค่า API"</div>';
+    return;
+  }
+  try {
+    const [logRows, memberRows] = await Promise.all([
+      fetchSheet('PNL Log'),
+      fetchSheet('Member'),
+    ]);
+
+    allMembers = (memberRows || []).slice(1).map(r => ({
+      memberId: r[0]||'', lineName: r[1]||'', realName: r[2]||'', team: r[3]||'', lineUserId: r[4]||'',
+    }));
+
+    allLogs = (logRows || []).slice(1).map(r => ({
+      logId: r[0]||'', memberId: r[1]||'', lineName: r[2]||'', realName: r[3]||'',
+      team: r[4]||'', date: r[5]||'', symbol: r[6]||'', direction: r[7]||'',
+      contractType: r[8]||'', leverage: r[9]||'', entryPrice: r[10]||'',
+      exitPrice: r[11]||'', pnlUsdt: r[12]||'', pnlPct: r[13]||'',
+      winLoss: r[14]||'', recordedBy: r[15]||'', timestamp: r[16]||'',
+    }));
+
+    updateStats();
+    renderRecent();
+    renderLogs();
+    renderMembers();
+    populateTeamFilter();
+  } catch (err) {
+    document.getElementById('recentTable').innerHTML = '<div class="empty">โหลดข้อมูลไม่ได้: ' + err.message + '</div>';
+  }
+}
+
+function updateStats() {
+  const total = allLogs.length;
+  const wins = allLogs.filter(l => l.winLoss === 'WIN').length;
+  const pnlTotal = allLogs.reduce((s, l) => s + (parseFloat(l.pnlUsdt) || 0), 0);
+  const winRate = total > 0 ? ((wins / total) * 100).toFixed(1) : 0;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-total-sub').textContent = 'WIN: ' + wins + '  LOSS: ' + (total - wins);
+
+  const pnlEl = document.getElementById('stat-pnl');
+  pnlEl.textContent = (pnlTotal >= 0 ? '+' : '') + pnlTotal.toFixed(2);
+  pnlEl.className = 'stat-value ' + (pnlTotal >= 0 ? 'green' : 'red');
+  document.getElementById('stat-pnl-sub').textContent = 'USDT สะสม';
+
+  document.getElementById('stat-winrate').textContent = winRate + '%';
+  document.getElementById('stat-wr-sub').textContent = wins + ' / ' + total + ' trades';
+
+  document.getElementById('stat-members').textContent = allMembers.length;
+  document.getElementById('stat-members-sub').textContent = 'ที่ลงทะเบียนแล้ว';
+}
+
+function renderRecent() {
+  const recent = [...allLogs].reverse().slice(0, 10);
+  document.getElementById('recentTable').innerHTML = logsHtml(recent);
+}
+
+function renderLogs() {
+  const name = (document.getElementById('filterName')?.value || '').toLowerCase();
+  const wl = document.getElementById('filterWL')?.value || '';
+  const team = document.getElementById('filterTeam')?.value || '';
+  let filtered = allLogs.filter(l => {
+    if (name && !l.lineName.toLowerCase().includes(name) && !l.realName.toLowerCase().includes(name)) return false;
+    if (wl && l.winLoss !== wl) return false;
+    if (team && l.team !== team) return false;
+    return true;
+  }).reverse();
+  document.getElementById('logsTable').innerHTML = logsHtml(filtered);
+}
+
+function logsHtml(rows) {
+  if (!rows.length) return '<div class="empty">ไม่มีข้อมูล</div>';
+  return `<table>
+    <thead><tr>
+      <th>วันที่</th><th>สมาชิก</th><th>ทีม</th><th>เหรียญ</th>
+      <th>ทิศทาง</th><th>Leverage</th><th>Entry</th><th>Exit</th>
+      <th>PNL (USDT)</th><th>W/L</th>
+    </tr></thead>
+    <tbody>${rows.map(l => {
+      const pnl = parseFloat(l.pnlUsdt);
+      const pnlStr = (isNaN(pnl) ? '-' : (pnl >= 0 ? '+' : '') + pnl.toFixed(2));
+      const pnlClass = isNaN(pnl) ? '' : pnl >= 0 ? 'pnl-pos' : 'pnl-neg';
+      return `<tr>
+        <td class="mono">${l.date || l.timestamp || '-'}</td>
+        <td>${l.lineName || '-'}</td>
+        <td>${l.team || '-'}</td>
+        <td class="mono">${l.symbol || '-'}</td>
+        <td><span class="tag ${(l.direction||'').toLowerCase()}">${l.direction || '-'}</span></td>
+        <td class="mono">${l.leverage ? l.leverage + 'x' : '-'}</td>
+        <td class="mono">${l.entryPrice || '-'}</td>
+        <td class="mono">${l.exitPrice || '-'}</td>
+        <td class="${pnlClass}">${pnlStr}</td>
+        <td><span class="tag ${(l.winLoss||'').toLowerCase()}">${l.winLoss || '-'}</span></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+function renderMembers() {
+  const name = (document.getElementById('filterMemberName')?.value || '').toLowerCase();
+  const filtered = allMembers.filter(m =>
+    !name || m.lineName.toLowerCase().includes(name) || m.realName.toLowerCase().includes(name)
+  );
+  if (!filtered.length) {
+    document.getElementById('membersTable').innerHTML = '<div class="empty">ไม่มีข้อมูลสมาชิก</div>';
+    return;
+  }
+  document.getElementById('membersTable').innerHTML = `<table>
+    <thead><tr><th>Member ID</th><th>LINE Name</th><th>ชื่อจริง</th><th>ทีม</th><th>LINE User ID</th></tr></thead>
+    <tbody>${filtered.map(m => `<tr>
+      <td class="mono">${m.memberId||'-'}</td>
+      <td>${m.lineName||'-'}</td>
+      <td>${m.realName||'-'}</td>
+      <td>${m.team||'-'}</td>
+      <td class="mono" style="font-size:11px;color:var(--text3)">${m.lineUserId||'ยังไม่ได้ผูก'}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function populateTeamFilter() {
+  const teams = [...new Set(allLogs.map(l => l.team).filter(Boolean))].sort();
+  const sel = document.getElementById('filterTeam');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">ทีมทั้งหมด</option>' + teams.map(t => `<option value="${t}">${t}</option>`).join('');
+  sel.value = cur;
+}
+
+// โหลด config ที่บันทึกไว้
+window.addEventListener('load', () => {
+  const { sheetId, apiKey } = getConfig();
+  if (sheetId) document.getElementById('cfg-sheetId').value = sheetId;
+  if (apiKey) document.getElementById('cfg-apiKey').value = apiKey;
+  if (sheetId && apiKey) loadData();
+  else {
+    document.getElementById('recentTable').innerHTML = '<div class="empty">กรุณาตั้งค่า Sheet ID และ API Key ก่อน</div>';
+    document.getElementById('logsTable').innerHTML = '<div class="empty">กรุณาตั้งค่า API ก่อน</div>';
+    document.getElementById('membersTable').innerHTML = '<div class="empty">กรุณาตั้งค่า API ก่อน</div>';
+  }
+});
+</script>
+</body>
+</html>
