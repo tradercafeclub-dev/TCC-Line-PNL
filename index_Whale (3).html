@@ -1,0 +1,2542 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🐋 TCC Whale Tracker — Live</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐋</text></svg>"/>
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐋</text></svg>"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:     #080b10;
+  --bg1:    #0d1117;
+  --bg2:    #111820;
+  --bg3:    #172030;
+  --border: #1a2840;
+  --b2:     #203050;
+  --g:   #00e676;  --g2: #00a152;  --gbg: rgba(0,230,118,.07);
+  --r:   #ff3d57;  --r2: #b71c37;  --rbg: rgba(255,61,87,.07);
+  --b:   #29b6f6;  --b2c:#0277bd;  --bbg: rgba(41,182,246,.08);
+  --p:   #ce93d8;  --pbg: rgba(206,147,216,.08);
+  --y:   #ffd54f;  --ybg: rgba(255,213,79,.08);
+  --t0: #e2eaf4;  --t1: #7a9ab8;  --t2: #3a5570;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans Thai', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--t0);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+/* HEADER */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;height:44px;background:var(--bg1);
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.logo{font-family:var(--mono);font-size:14px;font-weight:700;display:flex;align-items:center;gap:10px;}
+.logo-mark{color:var(--b);}
+.ws-status{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--t2);}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--g);animation:blink 2s infinite;}
+.dot.off{background:var(--r);animation:none;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hdr-r{display:flex;gap:8px;align-items:center;}
+.pill{font-family:var(--mono);font-size:10px;padding:2px 9px;border-radius:20px;border:1px solid;}
+.pill-b{background:var(--bbg);color:var(--b);border-color:rgba(41,182,246,.2);}
+.pill-g{background:var(--gbg);color:var(--g);border-color:rgba(0,230,118,.2);}
+.pill-y{background:var(--ybg);color:var(--y);border-color:rgba(255,213,79,.2);}
+.pill-r{background:var(--rbg);color:var(--r);border-color:rgba(255,71,87,.2);}
+
+/* BODY LAYOUT */
+.body{display:flex;flex:1;overflow:hidden;}
+
+/* ── WALLET MODAL ── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
+  z-index:100;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--bg1);border:1px solid var(--b2);border-radius:10px;
+  width:700px;max-width:96vw;max-height:84vh;
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 0 40px rgba(41,182,246,.18);
+}
+.modal-head{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;justify-content:space-between;
+  background:var(--bg2);flex-shrink:0;
+}
+.modal-title{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--b);}
+.modal-addr{font-family:var(--mono);font-size:9px;color:var(--t1);margin-top:3px;word-break:break-all;}
+.modal-close{
+  font-size:18px;cursor:pointer;color:var(--t2);background:none;
+  border:none;padding:0 4px;border-radius:4px;transition:color .12s;margin-left:8px;flex-shrink:0;
+}
+.modal-close:hover{color:var(--t0);}
+.modal-body{overflow-y:auto;flex:1;padding:14px 16px;}
+.modal-section{margin-bottom:18px;}
+.modal-section-title{
+  font-family:var(--mono);font-size:9px;letter-spacing:1px;
+  text-transform:uppercase;color:var(--t2);margin-bottom:8px;
+  border-bottom:1px solid var(--border);padding-bottom:5px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.pos-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
+.pos-table th{padding:4px 8px;font-size:9px;color:var(--t2);
+  text-transform:uppercase;letter-spacing:.5px;
+  border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;}
+.pos-table td{padding:5px 8px;border-bottom:1px solid rgba(26,40,64,.4);white-space:nowrap;}
+.pos-table tr:last-child td{border-bottom:none;}
+.pos-table tr:hover td{background:var(--bg2);}
+.pnl-pos{color:var(--g);font-weight:700;}
+.pnl-neg{color:var(--r);font-weight:700;}
+.modal-hl-link{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--mono);font-size:10px;color:var(--b);
+  text-decoration:none;padding:3px 10px;border-radius:5px;
+  border:1px solid rgba(41,182,246,.25);background:var(--bbg);
+  transition:all .12s;cursor:pointer;
+}
+.modal-hl-link:hover{background:rgba(41,182,246,.18);}
+.modal-loading{padding:30px;text-align:center;color:var(--t2);font-size:11px;}
+.trade-hist-row{
+  display:flex;align-items:center;gap:8px;padding:4px 0;
+  border-bottom:1px solid rgba(26,40,64,.3);font-family:var(--mono);font-size:11px;
+}
+.no-data{padding:20px;text-align:center;color:var(--t2);font-size:11px;font-family:var(--mono);}
+.summary-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.chip{
+  display:inline-flex;gap:4px;align-items:center;padding:3px 9px;border-radius:5px;
+  font-family:var(--mono);font-size:10px;background:var(--bg2);border:1px solid var(--border);
+}
+
+/* ── MODAL input row & address bar ── */
+.modal-addr-row{display:flex;align-items:center;gap:6px;margin-top:6px;}
+.modal-addr-input{
+  flex:1;background:var(--bg);border:1px solid var(--b2);border-radius:5px;
+  padding:5px 10px;font-family:var(--mono);font-size:11px;color:var(--t0);
+  outline:none;min-width:0;
+}
+.modal-addr-input:focus{border-color:var(--b);}
+.modal-addr-input::placeholder{color:var(--t2);font-size:9px;}
+.modal-lookup-btn{
+  padding:5px 12px;background:var(--bbg);color:var(--b);
+  border:1px solid rgba(41,182,246,.3);border-radius:5px;
+  font-family:var(--mono);font-size:11px;cursor:pointer;white-space:nowrap;
+  transition:all .12s;flex-shrink:0;
+}
+.modal-lookup-btn:hover{background:rgba(41,182,246,.18);}
+.modal-action-bar{
+  padding:5px 16px;background:var(--bg);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;flex-shrink:0;
+}
+.modal-hint{padding:40px 20px;text-align:center;font-family:var(--mono);}
+
+/* ── Position cards ── */
+.pos-overview{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;
+}
+.pos-overview-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;
+}
+.poc-title{font-family:var(--mono);font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;}
+.poc-val{font-family:var(--mono);font-size:15px;font-weight:700;}
+.poc-sub{font-size:9px;color:var(--t2);font-family:var(--mono);margin-top:2px;}
+
+.pos-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+  padding:12px 14px;margin-bottom:8px;position:relative;overflow:hidden;
+}
+.pos-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.pos-card.pos-long::before{background:var(--g);}
+.pos-card.pos-short::before{background:var(--r);}
+.pos-card-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.pos-coin-icon{
+  width:28px;height:28px;border-radius:50%;background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:9px;font-weight:700;color:var(--b);
+  border:1px solid var(--b2);flex-shrink:0;
+}
+.pos-coin-name{font-family:var(--mono);font-size:13px;font-weight:700;}
+.pos-side-badge{
+  padding:2px 8px;border-radius:4px;font-family:var(--mono);font-size:10px;font-weight:700;
+}
+.pos-side-badge.long{background:var(--gbg);color:var(--g);border:1px solid rgba(0,230,118,.2);}
+.pos-side-badge.short{background:var(--rbg);color:var(--r);border:1px solid rgba(255,61,87,.2);}
+.pos-lev{font-family:var(--mono);font-size:10px;color:var(--p);margin-left:2px;}
+.pos-card-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;}
+.pos-field{display:flex;flex-direction:column;gap:2px;}
+.pos-field-lbl{font-family:var(--mono);font-size:8px;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;}
+.pos-field-val{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--t0);}
+.pnl-pos{color:var(--g) !important;} .pnl-neg{color:var(--r) !important;}
+.pos-section-title{
+  font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--t2);margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:5px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--g);animation:blink 2s infinite;display:inline-block;margin-right:4px;}
+.demo-addr-link{color:var(--b);cursor:pointer;text-decoration:underline dotted;font-family:var(--mono);}
+
+/* Sort tabs in sidebar */
+.sb-sort{
+  display:flex;gap:2px;padding:4px 8px;border-bottom:1px solid var(--border);
+  background:var(--bg);flex-shrink:0;
+}
+.sb-sort-btn{
+  flex:1;font-family:var(--mono);font-size:9px;padding:2px 0;
+  border-radius:3px;border:1px solid var(--border);
+  background:transparent;color:var(--t2);cursor:pointer;text-align:center;
+  transition:all .12s;
+}
+.sb-sort-btn:hover{color:var(--t1);}
+.sb-sort-btn.active-def{color:var(--t0);background:var(--bg2);border-color:var(--b2);}
+.sb-sort-btn.active-up {color:var(--g); background:var(--gbg);border-color:rgba(0,230,118,.3);}
+.sb-sort-btn.active-dn {color:var(--r); background:var(--rbg);border-color:rgba(255,61,87,.3);}
+
+/* LEFT SIDEBAR — coin list */
+.sidebar{
+  width:210px;flex-shrink:0;background:var(--bg1);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.sb-head{
+  padding:8px 12px;font-family:var(--mono);font-size:9px;
+  text-transform:uppercase;letter-spacing:1px;color:var(--t2);
+  border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.sb-search{
+  padding:6px 10px;border-bottom:1px solid var(--border);
+}
+.sb-search input{
+  width:100%;background:var(--bg2);border:1px solid var(--border);
+  border-radius:4px;padding:4px 8px;font-family:var(--mono);font-size:11px;
+  color:var(--t0);outline:none;
+}
+.sb-search input:focus{border-color:var(--b2c);}
+.sb-search input::placeholder{color:var(--t2);}
+.coin-scroll{overflow-y:auto;flex:1;}
+.mkt-header{
+  padding:5px 12px;font-family:var(--mono);font-size:9px;
+  text-transform:uppercase;letter-spacing:1px;
+  display:flex;align-items:center;gap:6px;
+  background:var(--bg2);position:sticky;top:0;z-index:2;
+  border-bottom:1px solid var(--border);
+}
+.mkt-header.perps{color:var(--b);border-left:2px solid var(--b);}
+.mkt-header.spot {color:var(--p);border-left:2px solid var(--p);}
+.mkt-cnt{margin-left:auto;font-size:9px;opacity:.6;}
+
+.coin-item{
+  padding:6px 12px;display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;border-bottom:1px solid rgba(26,40,64,.5);
+  transition:background .12s;
+}
+.coin-item:hover{background:var(--bg2);}
+.coin-item.sel-perps{background:var(--bbg);border-left:2px solid var(--b);padding-left:10px;}
+.coin-item.sel-spot {background:var(--pbg);border-left:2px solid var(--p);padding-left:10px;}
+.ci-left{display:flex;flex-direction:column;gap:1px;}
+.ci-name{font-family:var(--mono);font-weight:700;font-size:11px;}
+.ci-id  {font-size:9px;color:var(--t2);font-family:var(--mono);}
+.ci-chg{font-family:var(--mono);font-size:10px;padding:1px 5px;border-radius:3px;}
+.ci-chg.up  {background:var(--gbg);color:var(--g);}
+.ci-chg.dn  {background:var(--rbg);color:var(--r);}
+.show-more{
+  padding:6px 12px;font-family:var(--mono);font-size:10px;
+  color:var(--b);cursor:pointer;text-align:center;
+  border-top:1px solid var(--border);
+  background:var(--bg2);
+  transition:background .12s;
+}
+.show-more:hover{background:var(--bg3);}
+.loading-coin{padding:20px;text-align:center;color:var(--t2);font-size:11px;font-family:var(--mono);}
+
+/* MAIN AREA */
+.main{display:flex;flex-direction:column;flex:1;overflow:hidden;}
+
+/* STATS ROW */
+.stats{
+  display:flex;background:var(--bg1);border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.stat{
+  flex:1;padding:7px 14px;border-right:1px solid var(--border);
+  display:flex;flex-direction:column;gap:1px;
+}
+.stat:last-child{border-right:none;}
+.stat-mk{font-size:8px;letter-spacing:.5px;margin-bottom:1px;font-family:var(--mono);}
+.stat-mk.p{color:var(--b);}
+.stat-mk.s{color:var(--p);}
+.stat-lbl{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;}
+.stat-val{font-family:var(--mono);font-size:14px;font-weight:700;}
+.stat-sub{font-size:9px;color:var(--t2);font-family:var(--mono);}
+.green{color:var(--g);} .red{color:var(--r);} .blue{color:var(--b);} .purple{color:var(--p);} .yellow{color:var(--y);}
+
+/* CONTROLS */
+.controls{
+  display:flex;align-items:center;gap:5px;padding:6px 14px;
+  background:var(--bg1);border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.mkt-tabs{display:flex;gap:2px;margin-right:4px;}
+.mtab{
+  font-family:var(--mono);font-size:11px;padding:3px 10px;
+  border-radius:4px;border:1px solid var(--border);
+  background:transparent;color:var(--t2);cursor:pointer;transition:all .15s;
+}
+.mtab:hover{color:var(--t1);}
+.mtab.ap{color:var(--b);border-color:rgba(41,182,246,.3);background:var(--bbg);}
+.mtab.as{color:var(--p);border-color:rgba(206,147,216,.3);background:var(--pbg);}
+.mtab.aa{color:var(--t0);border-color:var(--b2);background:var(--bg2);}
+.divider{width:1px;height:18px;background:var(--border);}
+.fbtn{
+  font-family:var(--mono);font-size:11px;padding:3px 10px;
+  border-radius:4px;border:1px solid var(--border);
+  background:transparent;color:var(--t2);cursor:pointer;transition:all .15s;
+}
+.fbtn:hover{color:var(--t1);}
+.fbtn.fa {color:var(--t0);border-color:var(--b2);background:var(--bg2);}
+.fbtn.fl {color:var(--g); border-color:rgba(0,230,118,.3); background:var(--gbg);}
+.fbtn.fs {color:var(--r); border-color:rgba(255,61,87,.3);  background:var(--rbg);}
+.coin-filter-badge{
+  font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:12px;
+  display:flex;align-items:center;gap:4px;cursor:pointer;
+}
+.coin-filter-badge.perps{background:var(--bbg);color:var(--b);border:1px solid rgba(41,182,246,.25);}
+.coin-filter-badge.spot {background:var(--pbg);color:var(--p);border:1px solid rgba(206,147,216,.25);}
+.coin-filter-badge .cls{opacity:.6;font-size:11px;}
+.spacer{flex:1;}
+.cnt{font-family:var(--mono);font-size:10px;color:var(--t2);}
+
+/* FEED TABLE */
+.tbl-wrap{overflow-y:auto;flex:1;}
+table{width:100%;border-collapse:collapse;}
+thead th{
+  padding:5px 10px;font-family:var(--mono);font-size:9px;
+  text-transform:uppercase;letter-spacing:.6px;color:var(--t2);
+  background:var(--bg1);border-bottom:1px solid var(--border);
+  text-align:left;position:sticky;top:0;z-index:1;white-space:nowrap;
+}
+tbody tr{
+  border-bottom:1px solid rgba(26,40,64,.5);
+  transition:background .1s;
+  animation:rowIn .25s ease-out;
+}
+@keyframes rowIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+tbody tr:hover{background:var(--bg2);}
+tbody tr.rp{border-left:2px solid rgba(41,182,246,.2);}
+tbody tr.rs{border-left:2px solid rgba(206,147,216,.2);}
+td{padding:5px 10px;font-family:var(--mono);font-size:11px;vertical-align:middle;white-space:nowrap;}
+
+.mkt-badge{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700;}
+.mkt-badge.p{background:var(--bbg);color:var(--b);border:1px solid rgba(41,182,246,.15);}
+.mkt-badge.s{background:var(--pbg);color:var(--p);border:1px solid rgba(206,147,216,.15);}
+
+.dir{padding:2px 7px;border-radius:3px;font-size:11px;font-weight:700;display:inline-block;}
+.dir.long {background:var(--gbg);color:var(--g);}
+.dir.short{background:var(--rbg);color:var(--r);}
+.dir.buy  {background:var(--pbg);color:var(--p);}
+.dir.sell {background:var(--ybg);color:var(--y);}
+
+.lev{color:var(--p);font-size:10px;}
+.prc{color:var(--t0);}
+.sz {color:var(--t1);}
+.uv {font-weight:700;}
+/* 5-tier USD coloring */
+.uv.t1   {color:var(--t2);}           /* <$10K — dim gray */
+.uv.t2   {color:var(--t0);}           /* $10K–$100K — white */
+.uv.t3   {color:var(--y);}            /* $100K–$500K — yellow Large */
+.uv.t4   {color:var(--p);}            /* $500K–$5M — purple Big Whale */
+.uv.t5   {color:var(--g);font-size:13px;text-shadow:0 0 8px rgba(0,230,118,.5);}  /* $5M+ — green MEGA WHALE */
+/* legacy compat */
+.uv.big  {color:var(--y);}
+.uv.giant{color:var(--p);}
+.uv.norm {color:var(--t0);}
+.wall{font-size:10px;color:var(--t2);}
+
+.act-tag{font-size:9px;padding:1px 5px;border-radius:3px;}
+.at-new {background:var(--bbg);color:var(--b);border:1px solid rgba(41,182,246,.15);}
+.at-inc {background:var(--gbg);color:var(--g);border:1px solid rgba(0,230,118,.15);}
+.at-flip{background:var(--pbg);color:var(--p);border:1px solid rgba(206,147,216,.15);}
+.at-cls {background:var(--rbg);color:var(--r);border:1px solid rgba(255,61,87,.15);}
+.at-spt {background:var(--ybg);color:var(--y);border:1px solid rgba(255,213,79,.15);}
+
+/* ── MEGA WHALE DASHBOARD ── */
+.mega-dashboard {
+  flex-shrink:0;background:rgba(0,20,10,.95);
+  border-bottom:2px solid rgba(0,230,118,.3);
+  padding:0;overflow:hidden;
+  transition:max-height .4s ease;
+  max-height:0;
+}
+.mega-dashboard.has-trades { max-height:180px; }
+.mega-dash-header {
+  display:flex;align-items:center;gap:8px;padding:6px 14px;
+  background:rgba(0,230,118,.06);border-bottom:1px solid rgba(0,230,118,.15);
+}
+.mega-dash-title {
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  color:var(--g);letter-spacing:1px;
+}
+.mega-dash-count {
+  background:rgba(0,230,118,.15);color:var(--g);
+  border:1px solid rgba(0,230,118,.3);border-radius:12px;
+  font-family:var(--mono);font-size:9px;padding:1px 7px;
+}
+.mega-dash-scroll {
+  display:flex;gap:8px;padding:8px 14px;overflow-x:auto;
+  scrollbar-width:thin;
+}
+.mega-card {
+  flex-shrink:0;background:rgba(0,230,118,.05);
+  border:1px solid rgba(0,230,118,.25);border-radius:8px;
+  padding:8px 12px;min-width:200px;position:relative;
+  animation:megaFlash .6s ease-out;
+}
+@keyframes megaFlash {
+  0%   {background:rgba(0,230,118,.3);box-shadow:0 0 20px rgba(0,230,118,.4);}
+  100% {background:rgba(0,230,118,.05);box-shadow:none;}
+}
+.mega-card-coin {font-family:var(--mono);font-size:13px;font-weight:700;color:var(--g);}
+.mega-card-usd  {font-family:var(--mono);font-size:16px;font-weight:700;color:var(--g);text-shadow:0 0 10px rgba(0,230,118,.4);}
+.mega-card-dir  {font-family:var(--mono);font-size:10px;margin:2px 0;}
+.mega-card-time {font-family:var(--mono);font-size:9px;color:var(--t2);}
+.mega-card-wallet{font-family:var(--mono);font-size:9px;color:var(--b);cursor:pointer;margin-top:3px;}
+.mega-card-wallet:hover{text-decoration:underline;}
+.mega-new-badge {
+  position:absolute;top:4px;right:6px;
+  background:var(--g);color:#000;font-family:var(--mono);
+  font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;
+  animation:blink 1s infinite;
+}
+
+/* ── ENHANCED STATUS BAR ── */
+.status-bar {
+  display:flex;align-items:center;gap:10px;padding:3px 14px;
+  background:#050810;border-bottom:1px solid rgba(26,40,64,.6);
+  flex-shrink:0;font-family:var(--mono);font-size:9px;
+  overflow-x:auto;white-space:nowrap;
+}
+.sb-item {
+  display:flex;align-items:center;gap:4px;color:var(--t2);
+  border-right:1px solid var(--border);padding-right:10px;
+}
+.sb-item:last-child{border-right:none;}
+.sb-item .sb-lbl {color:var(--t2);opacity:.7;}
+.sb-item .sb-val {color:var(--t1);}
+.sb-item .sb-val.green{color:var(--g);}
+.sb-item .sb-val.red{color:var(--r);}
+.sb-item .sb-val.blue{color:var(--b);}
+.sb-item .sb-val.mega{color:var(--g);font-weight:700;}
+
+
+/* EMPTY STATE */
+.empty{padding:40px;text-align:center;color:var(--t2);font-family:var(--mono);font-size:12px;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* SPINNER */
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--b);border-radius:50%;animation:spin .8s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ═══════════════════════════════════════
+   MOBILE RESPONSIVE — Binance-style
+═══════════════════════════════════════ */
+@media(max-width:800px){
+  /* Hide desktop elements */
+  .sidebar{display:none!important;}
+  .status-bar{display:none!important;}
+  body{overflow:hidden;}
+
+  /* Header compact */
+  header{height:48px;padding:0 12px;}
+  .logo{font-size:12px;gap:6px;}
+  .hdr-r .pill{font-size:9px;padding:2px 7px;}
+
+  /* Stats row: scrollable horizontal strip */
+  .stats{
+    overflow-x:auto;flex-wrap:nowrap;
+    scrollbar-width:none;-ms-overflow-style:none;
+  }
+  .stats::-webkit-scrollbar{display:none;}
+  .stat{
+    min-width:110px;padding:6px 10px;flex-shrink:0;
+  }
+  .stat-val{font-size:13px;}
+
+  /* Body layout vertical — mob-nav fixed at bottom */
+  .body{flex-direction:column;overflow:hidden;padding-bottom:56px;}
+  .main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+
+  /* mobileCards inside .main takes remaining flex space */
+  #mobileCards{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+
+  /* Controls compact */
+  .controls{padding:5px 10px;gap:4px;flex-wrap:wrap;}
+  .mtab{font-size:10px;padding:3px 8px;}
+  .fbtn{font-size:10px;padding:3px 8px;}
+  .divider{display:none;}
+
+  /* Feed table: card style on mobile */
+  .tbl-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  table{display:none!important;}
+
+  /* Mobile card feed — hidden by default, mobTab() shows it */
+  #mobileCards{display:none;}
+
+  /* Alert panel compact */
+  .alert-panel{padding:5px 10px;min-height:32px;}
+  .alert-chip{font-size:9px;padding:2px 8px;}
+
+  /* Mega dashboard compact */
+  .mega-card{min-width:160px;padding:6px 10px;}
+  .mega-card-usd{font-size:13px;}
+
+
+  /* Mobile filter buttons */
+  .mob-filter-btn{
+    flex-shrink:0;background:var(--bg2);border:1px solid var(--border);
+    color:var(--t1);font-family:var(--mono);font-size:10px;
+    padding:4px 10px;border-radius:12px;cursor:pointer;white-space:nowrap;
+  }
+  .mob-filter-btn.active{background:var(--b);color:#000;border-color:var(--b);}
+
+  /* Ensure .main is proper flex column filling space */
+  .main{display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0;}
+
+  /* mobileCards fills remaining space */
+  #mobileCards{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0;}
+
+  /* Bottom nav bar — fixed at bottom on mobile so scroll never hides it */
+  .mob-nav{
+    display:flex;flex-shrink:0;flex-grow:0;
+    background:var(--bg1);border-top:1px solid var(--border);
+    height:56px;min-height:56px;
+    /* Fixed position so scroll never hides it */
+    position:fixed;bottom:0;left:0;right:0;z-index:50;
+    /* Safe area for notch phones */
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  /* padding-bottom already set in .body rule above */
+  .mob-nav-btn{
+    flex:1;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:2px;
+    font-family:var(--mono);font-size:8px;color:var(--t2);
+    cursor:pointer;border:none;background:none;
+    transition:color .15s;padding:0;
+  }
+  .mob-nav-btn.active{color:var(--b);}
+  .mob-nav-btn svg{width:20px;height:20px;}
+  .mob-nav-icon{font-size:18px;line-height:1;}
+
+  /* Mobile panel system */
+  .mob-panel{display:none;flex:1;overflow:hidden;flex-direction:column;}
+  .mob-panel.active{display:flex;}
+
+  /* Mobile market card */
+  .m-card{
+    display:flex;align-items:center;
+    padding:10px 12px;border-bottom:1px solid rgba(26,40,64,.4);
+    gap:8px;
+  }
+  .m-card-left{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;}
+  .m-card-coin{font-family:var(--mono);font-size:13px;font-weight:700;}
+  .m-card-time{font-family:var(--mono);font-size:9px;color:var(--t2);}
+  .m-card-mid{display:flex;flex-direction:column;gap:2px;align-items:center;}
+  .m-card-dir{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;}
+  .m-card-mkt{font-size:9px;color:var(--t2);font-family:var(--mono);}
+  .m-card-right{display:flex;flex-direction:column;gap:2px;align-items:flex-end;}
+  .m-card-usd{font-family:var(--mono);font-size:13px;font-weight:700;}
+  .m-card-action{font-size:9px;color:var(--t2);font-family:var(--mono);}
+  .m-card-wallet{font-size:9px;color:var(--b);font-family:var(--mono);}
+
+  /* Mobile stats page */
+  .mob-stats-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;
+    padding:12px;overflow-y:auto;flex:1;
+  }
+  .mob-stat-card{
+    background:var(--bg1);border:1px solid var(--border);
+    border-radius:10px;padding:12px;
+  }
+  .mob-stat-lbl{font-family:var(--mono);font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+  .mob-stat-val{font-family:var(--mono);font-size:17px;font-weight:700;}
+  .mob-stat-sub{font-family:var(--mono);font-size:9px;color:var(--t2);margin-top:2px;}
+
+  /* Mobile Coins page */
+  .mob-coins-wrap{flex:1;overflow-y:auto;}
+  .mob-coin-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 14px;border-bottom:1px solid rgba(26,40,64,.4);
+  }
+  .mob-coin-name{font-family:var(--mono);font-size:13px;font-weight:700;}
+  .mob-coin-price{font-family:var(--mono);font-size:11px;color:var(--t1);}
+  .mob-coin-chg{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:4px;}
+
+  /* Mobile status info row */
+  .mob-status-row{
+    display:flex;gap:8px;overflow-x:auto;
+    padding:6px 12px;background:var(--bg);
+    border-bottom:1px solid var(--border);
+    font-family:var(--mono);font-size:9px;color:var(--t2);
+    flex-shrink:0;scrollbar-width:none;
+  }
+  .mob-status-row::-webkit-scrollbar{display:none;}
+  .mob-s-item{white-space:nowrap;display:flex;gap:3px;}
+  .mob-s-val{color:var(--t1);}
+  .mob-s-val.green{color:var(--g);}
+}
+
+.mob-coin-chg.up{background:var(--gbg);color:var(--g);}
+.mob-coin-chg.dn{background:var(--rbg);color:var(--r);}
+
+#mobileCards{display:none;}
+.mob-panel{display:none;}
+.mob-stats-grid{display:none;}
+.mob-coins-wrap{display:none;}
+.mob-status-row{display:none;}
+
+
+/* ALERT PANEL */
+.alert-panel {
+  flex-shrink:0; padding:6px 14px;
+  background:var(--bg1); border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:6px; overflow-x:auto;
+  min-height:36px;
+}
+.alert-panel-label {
+  font-family:var(--mono); font-size:10px; color:var(--t2);
+  white-space:nowrap; margin-right:4px; flex-shrink:0;
+}
+.alert-chip {
+  display:inline-flex; align-items:center; gap:5px;
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:20px; padding:3px 10px;
+  font-family:var(--mono); font-size:10px; color:var(--t0);
+  white-space:nowrap; cursor:pointer; flex-shrink:0;
+  transition:border-color .2s;
+}
+.alert-chip:hover { border-color:var(--b); }
+.alert-chip.chip-long  { border-color:rgba(0,230,118,.3);  background:rgba(0,230,118,.05); }
+.alert-chip.chip-short { border-color:rgba(255,61,87,.3);  background:rgba(255,61,87,.05); }
+.alert-chip.chip-mega  { border-color:rgba(255,213,79,.5); background:rgba(255,213,79,.07); }
+.alert-chip .chip-coin { font-weight:700; }
+.alert-chip .chip-usd  { color:var(--y); font-weight:600; }
+.alert-chip .chip-time { color:var(--t2); font-size:9px; }
+.alert-empty { font-family:var(--mono); font-size:10px; color:var(--t2); font-style:italic; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    🐋 <span class="logo-mark">TCC WHALE</span>TRACKER
+    <div class="ws-status">
+      <div class="dot" id="dot"></div>
+      <span id="wsLabel">กำลังโหลด...</span>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <div class="pill pill-b" id="pCnt">PERPS —</div>
+    <div class="pill pill-b" id="sCnt">SPOT —</div>
+    <div class="pill pill-g" id="clock">--:--:--</div>
+  </div>
+</header>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <div class="sb-item">
+    <span class="sb-lbl">WS</span>
+    <span class="sb-val" id="sbWsStatus" style="color:var(--r);">⚠ Connecting</span>
+  </div>
+  <div class="sb-item">
+    <span class="sb-lbl">Markets</span>
+    <span class="sb-val blue" id="sbMarkets">—</span>
+  </div>
+  <div class="sb-item">
+    <span class="sb-lbl">REST Poll</span>
+    <span class="sb-val" id="sbRestPoll">—</span>
+  </div>
+  <div class="sb-item">
+    <span class="sb-lbl">Trades</span>
+    <span class="sb-val blue" id="sbTotalTrades">0</span>
+  </div>
+  <div class="sb-item">
+    <span class="sb-lbl">$5M+ Today</span>
+    <span class="sb-val mega" id="sbMegaCount">0 🐋</span>
+  </div>
+  <div class="sb-item" style="margin-left:auto;border-right:none;">
+    <span class="sb-lbl">Largest</span>
+    <span class="sb-val" id="sbLargest" style="color:var(--y);">—</span>
+  </div>
+</div>
+
+<div class="body">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-head">
+      <span>Coins</span>
+      <span id="totalCoins" style="color:var(--b);">…</span>
+    </div>
+    <div class="sb-search">
+      <input type="text" id="searchInput" placeholder="ค้นหาเหรียญ..." oninput="filterCoinList()"/>
+    </div>
+    <!-- Sort tabs -->
+    <div class="sb-sort">
+      <button class="sb-sort-btn active-def" id="srt-def" onclick="setSbSort('def')" title="เรียงตามราคา">MCap</button>
+      <button class="sb-sort-btn" id="srt-up"  onclick="setSbSort('up')"  title="% บวกสูงสุด">▲ TOP</button>
+      <button class="sb-sort-btn" id="srt-dn"  onclick="setSbSort('dn')"  title="% ลบสูงสุด">▼ BOT</button>
+    </div>
+    <div class="coin-scroll" id="coinScroll">
+      <div class="loading-coin"><span class="spinner"></span>โหลดเหรียญ...</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-mk p">▲ PERPS</div>
+        <div class="stat-lbl">Long Vol</div>
+        <div class="stat-val green" id="longVol">$0</div>
+        <div class="stat-sub" id="longCnt">0 trades</div>
+      </div>
+      <div class="stat">
+        <div class="stat-mk p">▲ PERPS</div>
+        <div class="stat-lbl">Short Vol</div>
+        <div class="stat-val red" id="shortVol">$0</div>
+        <div class="stat-sub" id="shortCnt">0 trades</div>
+      </div>
+      <div class="stat">
+        <div class="stat-mk p">▲ PERPS</div>
+        <div class="stat-lbl">L/S Ratio</div>
+        <div class="stat-val blue" id="lsRatio">—</div>
+        <div class="stat-sub" id="lsSent">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-mk s">🔮 SPOT</div>
+        <div class="stat-lbl">Buy Vol</div>
+        <div class="stat-val purple" id="spotBuyVol">$0</div>
+        <div class="stat-sub" id="spotBuyCnt">0 trades</div>
+      </div>
+      <div class="stat">
+        <div class="stat-mk s">🔮 SPOT</div>
+        <div class="stat-lbl">Sell Vol</div>
+        <div class="stat-val yellow" id="spotSellVol">$0</div>
+        <div class="stat-sub" id="spotSellCnt">0 trades</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Largest</div>
+        <div class="stat-val" id="lgTrade">—</div>
+        <div class="stat-sub" id="lgCoin">—</div>
+      </div>
+    </div>
+
+    <!-- MEGA WHALE DASHBOARD -->
+    <div class="mega-dashboard" id="megaDashboard">
+      <div class="mega-dash-header">
+        <span style="font-size:16px;">🚨</span>
+        <span class="mega-dash-title">MEGA WHALE ALERT — $5M+</span>
+        <span class="mega-dash-count" id="megaDashCount">0</span>
+        <span style="font-family:var(--mono);font-size:9px;color:var(--g);margin-left:auto;opacity:.7;" id="megaDashLast"></span>
+      </div>
+      <div class="mega-dash-scroll" id="megaDashScroll">
+        <!-- mega cards injected here -->
+      </div>
+    </div>
+
+    <!-- ALERT PANEL -->
+    <div class="alert-panel" id="alertPanel">
+      <div class="alert-panel-label">🐋 ALERTS</div>
+      <div class="alert-empty" id="alertEmpty">รอ Whale Trade ≥ $100K...</div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="controls">
+      <!-- Market tab -->
+      <div class="mkt-tabs">
+        <button class="mtab aa" id="mtAll"   onclick="setMktTab('all')">ALL</button>
+        <button class="mtab"    id="mtPerps" onclick="setMktTab('perps')">▲ PERPS</button>
+        <button class="mtab"    id="mtSpot"  onclick="setMktTab('spot')">🔮 SPOT</button>
+      </div>
+      <div class="divider"></div>
+      <!-- Direction filter -->
+      <button class="fbtn fa" id="fAll"   onclick="setDir('all')">ALL</button>
+      <button class="fbtn"    id="fLong"  onclick="setDir('long')">▲ LONG</button>
+      <button class="fbtn"    id="fShort" onclick="setDir('short')">▼ SHORT</button>
+      <div class="divider"></div>
+      <button class="fbtn"    id="fBig"   onclick="setDir('big')">$100K+</button>
+      <!-- Selected coin badge -->
+      <div id="coinBadge" style="display:none;" class="coin-filter-badge perps">
+        <span id="coinBadgeTxt"></span>
+        <span class="cls" onclick="clearCoinFilter()">✕</span>
+      </div>
+      <div class="spacer"></div>
+      <div class="cnt" id="rowCnt">0 trades</div>
+    </div>
+
+    <!-- FEED -->
+    <div class="tbl-wrap" id="tblWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>TIME</th>
+            <th>MARKET</th>
+            <th>COIN</th>
+            <th>DIRECTION</th>
+            <th>LEV</th>
+            <th>SIZE</th>
+            <th>PRICE</th>
+            <th>USD VALUE</th>
+            <th>ACTION</th>
+            <th>WALLET</th>
+          </tr>
+        </thead>
+        <tbody id="tBody">
+          <tr><td colspan="10" class="empty"><span class="spinner"></span>กำลังเชื่อมต่อ Hyperliquid WebSocket · ดึง recentTrades จากตลาดทั้งหมด...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══════════════ MOBILE FEED CARDS (inside .main) ═══════════════ -->
+    <div id="mobileCards" style="overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;display:none;"></div>
+
+  </div><!-- end .main -->
+
+  <!-- ═══════════════ MOBILE BOTTOM NAV (inside .body) ═══════════════ -->
+  <nav class="mob-nav" id="mobNav" style="display:none;">
+    <button class="mob-nav-btn active" id="mnFeed" onclick="mobTab('feed')">
+      <span class="mob-nav-icon">📊</span>
+      <span>Feed</span>
+    </button>
+    <button class="mob-nav-btn" id="mnStats" onclick="mobTab('stats')">
+      <span class="mob-nav-icon">📈</span>
+      <span>Stats</span>
+    </button>
+    <button class="mob-nav-btn" id="mnCoins" onclick="mobTab('coins')">
+      <span class="mob-nav-icon">🪙</span>
+      <span>Coins</span>
+    </button>
+    <button class="mob-nav-btn" id="mnAlerts" onclick="mobTab('alerts')">
+      <span class="mob-nav-icon">🔔</span>
+      <span id="mnAlertBadge">Alerts</span>
+    </button>
+    <button class="mob-nav-btn" id="mnWallet" onclick="mobTab('wallet')">
+      <span class="mob-nav-icon">👛</span>
+      <span>Wallet</span>
+    </button>
+  </nav>
+
+</div><!-- end .body -->
+
+
+<div class="modal-overlay" id="walletModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div style="flex:1;min-width:0;">
+        <div class="modal-title">🐋 Wallet Positions</div>
+        <div class="modal-addr-row">
+          <input type="text" id="modalAddrInput" class="modal-addr-input"
+            placeholder="วาง address เต็ม: 0x049bdC370620bEaB340B01072FA580FD57745E7D"
+            oninput="onAddrInput()" onkeydown="if(event.key==='Enter')lookupAddr()"/>
+          <button class="modal-lookup-btn" onclick="lookupAddr()">🔍 ค้นหา</button>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <!-- Quick action bar -->
+    <div class="modal-action-bar" id="modalActionBar" style="display:none;">
+      <span id="modalAddrShort" style="font-family:var(--mono);font-size:10px;color:var(--t1);"></span>
+      <span id="modalPoolBadge" style="display:none;font-family:var(--mono);font-size:9px;color:var(--g);margin-left:6px;">● Whale Pool</span>
+      <div style="display:flex;gap:6px;margin-left:auto;">
+        <button class="modal-lookup-btn" onclick="tryAnotherWhale()" style="font-size:10px;padding:3px 9px;">🎲 ลอง Whale อื่น</button>
+        <a class="modal-hl-link" id="modalHlLink" href="#" target="_blank" rel="noopener">🔗 Explorer</a>
+        <a class="modal-hl-link" id="modalHlPortfolio" href="#" target="_blank" rel="noopener" style="color:var(--p);border-color:rgba(206,147,216,.25);background:var(--pbg);">📊 Portfolio</a>
+      </div>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <div class="modal-hint">
+        <div style="font-size:22px;margin-bottom:10px;">🔍</div>
+        <div style="color:var(--t0);font-size:12px;margin-bottom:6px;">กรอก Wallet Address เพื่อดู Positions จริง</div>
+        <div style="color:var(--t2);font-size:10px;">วาง Ethereum address (0x...) ความยาว 42 ตัวอักษร แล้วกด Enter หรือ 🔍 ค้นหา</div>
+        <div style="margin-top:12px;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-size:10px;color:var(--t2);">
+          ตัวอย่าง: <span style="color:var(--b);cursor:pointer;" onclick="document.getElementById('modalAddrInput').value='0x049bdC370620bEaB340B01072FA580FD57745E7D';lookupAddr()">0x049bdC370620bEaB340B01072FA580FD57745E7D</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// STABLECOINS to exclude
+const STABLES = new Set(['USDC','USDT','DAI','BUSD','TUSD','FRAX','USDP','USDD','LUSD','SUSD','USDE','PYUSD','FDUSD','GUSD','CUSD','USDB','USDe','USD0','USDS','sUSDe','USDX']);
+
+// ═══════════════════════════════════════════════════════════════
+// WHALE ALERT CONFIG
+// ═══════════════════════════════════════════════════════════════
+const ALERT_CONFIG = {
+  minUSD:        100000,
+  megaUSD:       5000000,   // $5M = MEGA WHALE
+  tgToken:       '8591712972:AAFoyrpYxBkiYmXSvU3JqArEH4ZwIEDY-LU',
+  tgChatId:      '-1003638538824',
+  appsScriptURL: 'https://script.google.com/macros/s/AKfycbwDBjadnEFN7_JqVH5oCUTSkMLGAsKzIOMfrs5RvstxonBvGxwQcTKZja6kji0wSKHqEQ/exec',   // วาง URL จาก Deploy Apps Script ที่นี่
+  cooldownSec:   300,
+  onlyDirection: null,
+  onlyMarket:    null,
+  // ── เหรียญที่ต้องการแจ้งเตือน (null = ทุกเหรียญ) ──
+  alertCoins:    new Set(['BTC','ETH','XRP','SOL','BNB','ADA','DOGE']),
+};
+
+// ── Dedup: ใช้ fill hash (real) หรือ fingerprint (sim) ──
+const sentHashes = new Set(); // ป้องกัน alert ซ้ำทุกกรณี
+
+// ── Leverage fetch: async enrichment สำหรับ whale trades ──
+const _levCache = new Map(); // wallet+coin → {lev, ts}
+const LEV_CACHE_TTL = 30000; // 30s
+
+async function fetchLevForWallet(wallet, coin) {
+  if (!wallet || wallet === '—') return null;
+  // Normalize address — Hyperliquid API requires lowercase
+  const addr = wallet.toLowerCase().trim();
+  if (!/^0x[0-9a-f]{40}$/.test(addr)) return null;
+
+  // Strip coin suffix like /USD if present
+  const coinClean = coin.replace('/USD','').replace('/USDC','').trim();
+
+  const key = addr + '|' + coinClean;
+  const cached = _levCache.get(key);
+  if (cached && Date.now() - cached.ts < LEV_CACHE_TTL) return cached.lev;
+
+  try {
+    const r = await fetch('https://api.hyperliquid.xyz/info', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({type:'clearinghouseState', user: addr}),
+      signal: AbortSignal.timeout(5000)
+    });
+    if (!r.ok) return null;
+    const data = await r.json();
+
+    // HL response: {assetPositions: [{position: {coin, szi, entryPx, leverage:{type,value}, marginUsed, ...}}]}
+    const pos = (data.assetPositions || []).find(p => {
+      const c = (p.position?.coin || p.coin || '').replace('/USD','').replace('/USDC','');
+      return c === coinClean;
+    });
+
+    if (!pos) {
+      _levCache.set(key, {lev: null, ts: Date.now()});
+      return null;
+    }
+
+    const p = pos.position || pos;
+
+    // Path 1: leverage object (most common in HL API)
+    let levNum = null;
+    if (p.leverage) {
+      if (typeof p.leverage === 'object') {
+        levNum = parseInt(p.leverage.value || p.leverage.rawUsd || 0) || null;
+      } else {
+        levNum = parseInt(p.leverage) || null;
+      }
+    }
+
+    // Path 2: compute from position data if leverage field missing/zero
+    if (!levNum || levNum <= 0) {
+      const szi    = parseFloat(p.szi || 0);
+      const entry  = parseFloat(p.entryPx || 0);
+      const margin = parseFloat(p.marginUsed || 0);
+      if (margin > 0 && szi !== 0 && entry > 0) {
+        levNum = Math.round(Math.abs(szi) * entry / margin);
+      }
+    }
+
+    // Sanity check: leverage between 1–100
+    if (levNum && (levNum < 1 || levNum > 100)) levNum = null;
+
+    _levCache.set(key, {lev: levNum, ts: Date.now()});
+    return levNum;
+  } catch(e) {
+    return null;
+  }
+}
+
+// เรียกหลัง addTrade สำหรับ whale trades — เติม lev แล้ว re-render
+async function enrichTradeLev(trade) {
+  if (trade.lev || !trade.wallet || trade.wallet === '—') return;
+  const lev = await fetchLevForWallet(trade.wallet, trade.coin);
+  if (lev) {
+    trade.lev = lev;
+    renderFeed();
+    if (isMobile() && mobCurrentTab === 'feed') renderMobileFeed();
+  }
+}
+
+
+
+async function checkAndAlert(trade) {
+  if (trade.usd < ALERT_CONFIG.minUSD) return;
+  if (ALERT_CONFIG.alertCoins && !ALERT_CONFIG.alertCoins.has(trade.coin)) return;
+  if (ALERT_CONFIG.onlyDirection && trade.direction !== ALERT_CONFIG.onlyDirection) return;
+  if (ALERT_CONFIG.onlyMarket && trade.mkt !== ALERT_CONFIG.onlyMarket) return;
+
+  // ── Alert dedup: hash + content fingerprint (ใช้ tradeTime จาก exchange ไม่ใช้ Date.now()!)
+  const hashKey = trade.hash || '';
+  // tradeTime จาก exchange timestamp — stable ไม่ขึ้นกับเวลาที่ process
+  const tradeEpochSec = trade._time ? Math.floor(trade._time / 5000) : Math.floor(Date.now() / 5000);
+  const fingerprint = 'fp:' + trade.coin + '|' + trade.direction + '|'
+    + Math.round(trade.price) + '|' + Math.round(trade.size * 1e4) + '|' + tradeEpochSec;
+
+  if ((hashKey && sentHashes.has(hashKey)) || sentHashes.has(fingerprint)) return;
+  if (hashKey) sentHashes.add(hashKey);
+  sentHashes.add(fingerprint);
+  if (sentHashes.size > 2000) {
+    const arr = [...sentHashes];
+    sentHashes.clear();
+    arr.slice(-1000).forEach(k => sentHashes.add(k));
+  }
+
+  const levStr = trade.lev ? String(trade.lev) : '—';
+  const payload = {
+    wallet:    trade.wallet,
+    coin:      trade.coin,
+    market:    trade.mkt || 'perps',
+    direction: trade.direction,
+    size:      (trade.size ? fmtS(trade.size) : '—') + ' ' + trade.coin,
+    usd:       parseFloat(trade.usd).toFixed(2),
+    lev:       levStr,              // format เก่า (compat)
+    leverage:  levStr !== '—' ? levStr + 'x' : '—',  // format ใหม่ Apps Script v2
+    action:    trade.action || '—',
+    price:     trade.price ? parseFloat(trade.price).toFixed(4) : '0',
+  };
+
+  await Promise.allSettled([
+    sendTelegramAlert(payload),
+    sendToSheets(payload),
+  ]);
+
+  showAlertToast(trade);
+  addAlertChip(trade);
+}
+
+// ── Telegram rate limit guard ──
+let _tgLastSent = 0;
+const _tgMinInterval = 5000; // min 5s between TG messages (Telegram allows ~30/s but dedup is better)
+
+async function sendTelegramAlert(p) {
+  // Per-coin rate limit: ป้องกันส่งซ้ำ coin เดียวกันในช่วง 5s
+  const now = Date.now();
+  const coinRlKey = p.coin + '|' + p.direction;
+  if (!_tgCoinLastSent) window._tgCoinLastSent = {};
+  if ((now - (window._tgCoinLastSent[coinRlKey] || 0)) < 8000) {
+    console.warn('[TG] Per-coin rate limit:', coinRlKey);
+    return;
+  }
+  window._tgCoinLastSent[coinRlKey] = now;
+
+  const usd = parseFloat(p.usd);
+  const isMega = usd >= ALERT_CONFIG.megaUSD;
+  const dirEmoji = (p.direction === 'long' || p.direction === 'buy') ? '\u{1F7E2} LONG' : '\u{1F534} SHORT';
+  const levStr = p.lev && p.lev !== '—' && p.lev !== 'null' ? p.lev : null;
+  const lines = [
+    isMega ? '\u{1F6A8}\u{1F40B} <b>MEGA WHALE ALERT</b>' : '\u{1F40B} <b>WHALE ALERT</b>',
+    '',
+    '<b>' + p.coin + '/' + p.market.toUpperCase() + '</b>  ' + dirEmoji,
+    '\u{1F4CA} Size: <code>' + p.size + '</code>',
+    '\u{1F4B5} Value: <b>$' + Number(usd).toLocaleString('en-US', {maximumFractionDigits:0}) + '</b>',
+    levStr ? '\u26A1 Leverage: <code>' + levStr + 'x</code>' : null,
+    '\u{1F4B0} Price: <code>$' + Number(p.price).toLocaleString('en-US', {maximumFractionDigits:2}) + '</code>',
+    '\u{1F3F7} Action: <code>' + p.action + '</code>',
+    '',
+    '\u{1F45B} <code>' + (p.wallet && !/^0x0{38,}/.test(p.wallet) ? p.wallet : 'Market Trade') + '</code>',
+    '\u{1F550} ' + new Date().toLocaleTimeString('th-TH'),
+    '',
+    p.wallet && !/^0x0{38,}/.test(p.wallet) ? '<a href="https://app.hyperliquid.xyz/explorer/address/' + p.wallet + '">\u{1F517} Explorer</a>' : null,
+  ].filter(Boolean).join('\n');
+
+  try {
+    const r = await fetch('https://api.telegram.org/bot' + ALERT_CONFIG.tgToken + '/sendMessage', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        chat_id: ALERT_CONFIG.tgChatId,
+        text: lines,
+        parse_mode: 'HTML',
+        disable_web_page_preview: true,
+      }),
+    });
+    if (r.status === 429) {
+      // Telegram rate limit: back off by reading retry_after
+      try {
+        const body = await r.json();
+        const retryAfter = body?.parameters?.retry_after || 30;
+        console.warn('[TG] 429 rate limited — backing off', retryAfter, 's');
+        _tgLastSent = Date.now() + retryAfter * 1000; // block further sends
+      } catch(_) { _tgLastSent = Date.now() + 30000; }
+      return;
+    }
+    if (!r.ok) { console.warn('[TG] HTTP', r.status); }
+  } catch(e) {
+    console.warn('[TG] Network error:', e.message);
+  }
+}
+
+async function sendToSheets(p) {
+  if (!ALERT_CONFIG.appsScriptURL) return;
+  // ส่งข้อมูลในลำดับ column ที่ถูกต้อง: Timestamp, Wallet, Coin, Direction, Size, USD Value, Leverage, Action, Market, Price
+  const payload = {
+    timestamp: new Date().toLocaleString('th-TH', {timeZone:'Asia/Bangkok', hour12:false}),
+    wallet:    p.wallet || '—',
+    coin:      p.coin,
+    direction: p.direction,
+    size:      p.size,
+    usd:       p.usd,
+    leverage:  p.lev && p.lev !== '—' ? p.lev + 'x' : '—',
+    action:    p.action,
+    market:    p.market,
+    price:     p.price,
+  };
+  try {
+    await fetch(ALERT_CONFIG.appsScriptURL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload),
+      mode: 'no-cors',
+    });
+  } catch(e) {
+    console.warn('[Sheets] Send failed:', e.message);
+  }
+}
+
+function showAlertToast(trade) {
+  const old = document.getElementById('alertToast');
+  if (old) old.remove();
+  const isMega = trade.usd >= ALERT_CONFIG.megaUSD;
+  const dirColor = (trade.direction === 'long' || trade.direction === 'buy') ? '#00e676' : '#ff3d57';
+  const toast = document.createElement('div');
+  toast.id = 'alertToast';
+  toast.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;background:#0d1117;border:1px solid ' + dirColor + ';border-radius:8px;padding:12px 16px;min-width:220px;box-shadow:0 0 20px rgba(0,0,0,.5);font-family:IBM Plex Mono,monospace;';
+  toast.innerHTML = '<div style="font-size:11px;color:' + dirColor + ';font-weight:700;margin-bottom:4px;">' + (isMega ? '\u{1F6A8} MEGA ' : '') + '\u{1F40B} WHALE ALERT</div><div style="font-size:13px;font-weight:700;color:#e2eaf4;">' + trade.coin + ' \u00B7 $' + fmt(trade.usd) + '</div><div style="font-size:10px;color:#7a9ab8;margin-top:3px;">' + trade.wallet.slice(0,10) + '...</div><div style="font-size:9px;color:#3a5570;margin-top:4px;">\u2705 Sheets + Telegram</div>';
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .3s'; setTimeout(() => toast.remove(), 300); }, 6000);
+}
+
+
+// ── Alert Dashboard Panel ──
+const alertHistory = []; // เก็บ alert ล่าสุด max 20 รายการ
+
+function addAlertChip(trade) {
+  alertHistory.unshift({
+    coin: trade.coin, usd: trade.usd,
+    direction: trade.direction, wallet: trade.wallet,
+    time: new Date().toTimeString().slice(0,8),
+    isMega: trade.usd >= ALERT_CONFIG.megaUSD,
+    mkt: trade.mkt || 'perps',
+  });
+  if (alertHistory.length > 20) alertHistory.pop();
+  renderAlertPanel();
+  onNewAlert(); // mobile badge counter
+}
+
+function renderAlertPanel() {
+  const panel = document.getElementById('alertPanel');
+  const empty = document.getElementById('alertEmpty');
+  if (!panel) return;
+  if (alertHistory.length === 0) {
+    if (empty) empty.style.display = '';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+
+  // ลบ chips เก่า (เก็บแค่ label + empty)
+  const chips = panel.querySelectorAll('.alert-chip');
+  chips.forEach(c => c.remove());
+
+  alertHistory.forEach(a => {
+    const isLong = a.direction === 'long' || a.direction === 'buy';
+    const cls = a.isMega ? 'alert-chip chip-mega' : isLong ? 'alert-chip chip-long' : 'alert-chip chip-short';
+    const dirStr = isLong ? '🟢' : '🔴';
+    const chip = document.createElement('div');
+    chip.className = cls;
+    chip.title = a.wallet;
+    chip.onclick = () => openWallet(a.wallet);
+    chip.innerHTML = `${a.isMega ? '🚨' : '🐋'} <span class="chip-coin">${a.coin}</span> ${dirStr} <span class="chip-usd">$${fmt(a.usd)}</span> <span class="chip-time">${a.time}</span>`;
+    panel.appendChild(chip);
+  });
+}
+
+// ── Global status counters ──
+let totalTradesReceived = 0;
+let megaTradesCount = 0;
+let lastRestPollTime = null;
+const megaTradesHistory = []; // แยกจาก alertHistory
+
+// ── MEGA WHALE Dashboard ──
+function addMegaTrade(trade) {
+  megaTradesHistory.unshift({
+    coin: trade.coin, usd: trade.usd,
+    direction: trade.direction, wallet: trade.wallet,
+    time: trade.time || new Date().toTimeString().slice(0,8),
+    mkt: trade.mkt || 'perps',
+    isNew: true,
+  });
+  if (megaTradesHistory.length > 10) megaTradesHistory.pop();
+  renderMegaDashboard();
+  setTimeout(() => {
+    if (megaTradesHistory[0]) megaTradesHistory[0].isNew = false;
+    renderMegaDashboard();
+  }, 10000);
+}
+
+function renderMegaDashboard() {
+  const dash = document.getElementById('megaDashboard');
+  const scroll = document.getElementById('megaDashScroll');
+  const countEl = document.getElementById('megaDashCount');
+  const lastEl = document.getElementById('megaDashLast');
+  if (!dash || !scroll) return;
+  if (megaTradesHistory.length === 0) {
+    dash.classList.remove('has-trades');
+    return;
+  }
+  dash.classList.add('has-trades');
+  if (countEl) countEl.textContent = megaTradesHistory.length;
+  if (lastEl && megaTradesHistory[0]) lastEl.textContent = 'Last: ' + megaTradesHistory[0].time;
+  scroll.innerHTML = megaTradesHistory.map((m) => {
+    const isLong = m.direction === 'long' || m.direction === 'buy';
+    const dirStr = isLong ? '▲ LONG' : '▼ SHORT';
+    const dirColor = isLong ? 'var(--g)' : 'var(--r)';
+    const walletShort = m.wallet && m.wallet !== '—'
+      ? m.wallet.slice(0,6) + '…' + m.wallet.slice(-4)
+      : '—';
+    return `<div class="mega-card">
+      ${m.isNew ? '<div class="mega-new-badge">NEW</div>' : ''}
+      <div class="mega-card-coin">🐋 ${m.coin}/${m.mkt.toUpperCase()}</div>
+      <div class="mega-card-usd">$${fmt(m.usd)}</div>
+      <div class="mega-card-dir" style="color:${dirColor}">${dirStr}</div>
+      ${m.wallet && m.wallet !== '—'
+        ? `<div class="mega-card-wallet" onclick="openWallet('${m.wallet}')">${walletShort} 🔗</div>`
+        : '<div class="mega-card-wallet" style="color:var(--t2);">—</div>'}
+      <div class="mega-card-time">${m.time}</div>
+    </div>`;
+  }).join('');
+}
+
+let perpsCoins = [];   // [{name, idx, price, chg}]
+let spotCoins  = [];   // [{name, spotId, idx, price, chg}]
+let allTrades  = [];
+let mktTab = 'all', dirFilter = 'all', selectedCoin = null, selectedMkt = null;
+let minSize = 50000, autoScroll = true;
+let simTimer = null; // unused — kept for compat
+
+// Stats
+let lV=0,lC=0, sV=0,sC=0, sbV=0,sbC=0, ssV=0,ssC=0, lgV=0,lgN='';
+
+// ═══════════════════════════════════════════════════════════════
+// MARKET FEED — ดึง trades จากตลาดทั้งหมด ไม่ต้องรู้กระเป๋า
+// Strategy 1: WebSocket subscribe {type:'trades', coin} → realtime
+// Strategy 2: REST poll recentTrades per coin → fallback/supplement
+// ═══════════════════════════════════════════════════════════════
+
+const processedTids = new Set(); // dedup by trade ID
+let wsConn = null;
+let wsReady = false;
+let subscribedCoins = new Set();
+let restPollIdx = 0; // rotate through coins for REST supplement
+
+// ── WebSocket: subscribe trades ทุก coin ──
+function connectWebSocket() {
+  try {
+    wsConn = new WebSocket('wss://api.hyperliquid.xyz/ws');
+  } catch(e) {
+    console.warn('[WS] ไม่สามารถเชื่อมต่อ WebSocket:', e.message);
+    scheduleRestFallback();
+    return;
+  }
+
+  wsConn.onopen = () => {
+    wsReady = true;
+    console.info('[WS] Connected — subscribing trades...');
+    set('wsLabel', 'Live · WebSocket');
+    document.getElementById('dot').classList.remove('off');
+    const sbWs = document.getElementById('sbWsStatus');
+    if (sbWs) { sbWs.textContent = '● Connected'; sbWs.style.color = 'var(--g)'; }
+    subscribeCoins();
+  };
+
+  wsConn.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+      if (msg.channel === 'trades' && Array.isArray(msg.data)) {
+        msg.data.forEach(t => processMarketTrade(t));
+      }
+    } catch(_) {}
+  };
+
+  wsConn.onclose = () => {
+    wsReady = false;
+    subscribedCoins.clear();
+    set('wsLabel', '⚠ Reconnecting...');
+    document.getElementById('dot').classList.add('off');
+    const sbWs = document.getElementById('sbWsStatus');
+    if (sbWs) { sbWs.textContent = '⚠ Reconnecting'; sbWs.style.color = 'var(--r)'; }
+    console.warn('[WS] Disconnected — reconnecting in 5s...');
+    setTimeout(connectWebSocket, 5000);
+  };
+
+  wsConn.onerror = () => wsConn.close();
+}
+
+function subscribeCoins() {
+  if (!wsConn || wsConn.readyState !== WebSocket.OPEN) return;
+  // Subscribe perps
+  perpsCoins.forEach(c => {
+    if (!subscribedCoins.has(c.name)) {
+      wsConn.send(JSON.stringify({method:'subscribe', subscription:{type:'trades', coin:c.name}}));
+      subscribedCoins.add(c.name);
+    }
+  });
+  // Subscribe spot (ใช้ spotId เช่น @0, @1)
+  spotCoins.forEach(c => {
+    if (!subscribedCoins.has(c.spotId)) {
+      wsConn.send(JSON.stringify({method:'subscribe', subscription:{type:'trades', coin:c.spotId}}));
+      subscribedCoins.add(c.spotId);
+    }
+  });
+  console.info(`[WS] Subscribed ${subscribedCoins.size} markets`);
+  set('wsLabel', `Live · ${subscribedCoins.size} markets`);
+  const sbMkts = document.getElementById('sbMarkets');
+  if (sbMkts) sbMkts.textContent = subscribedCoins.size + ' markets';
+}
+
+// ── REST supplement: poll recentTrades สำรอง เผื่อ WS miss ──
+const REST_BATCH_COINS = ['BTC','ETH','SOL','BNB','XRP','SUI','HYPE','DOGE','AVAX','LINK','ADA','ARB','WIF','PEPE','TAO'];
+
+
+
+// REST supplement: เรียกทุก 10s, backoff เมื่อ 500
+let restPollTimer = null;
+let restFailCount = 0;  // consecutive 500 count
+
+async function pollRecentTradesBatchSafe() {
+  const API = 'https://api.hyperliquid.xyz/info';
+  const coin = REST_BATCH_COINS[restPollIdx % REST_BATCH_COINS.length];
+  restPollIdx++;
+  try {
+    const r = await fetch(API, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({type:'recentTrades', coin}),
+      signal: AbortSignal.timeout(5000)
+    });
+    if (r.status === 500) {
+      restFailCount++;
+      // exponential backoff: หยุด REST poll ชั่วคราว
+      if (restFailCount >= 3) {
+        const backoff = Math.min(restFailCount * 10000, 60000);
+        clearInterval(restPollTimer); restPollTimer = null;
+        setTimeout(() => {
+          restFailCount = 0;
+          scheduleRestFallback();
+        }, backoff);
+      }
+      return;
+    }
+    if (!r.ok) return;
+    restFailCount = 0;
+    const trades = await r.json();
+    if (!Array.isArray(trades)) return;
+    trades.forEach(t => processMarketTrade({...t, coin}));
+    lastRestPollTime = new Date().toTimeString().slice(0,8);
+    const sbRest = document.getElementById('sbRestPoll');
+    if (sbRest) sbRest.textContent = lastRestPollTime;
+  } catch(e) { /* timeout/network — silent */ }
+}
+
+function scheduleRestFallback() {
+  if (restPollTimer) return;
+  pollRecentTradesBatchSafe();
+  restPollTimer = setInterval(pollRecentTradesBatchSafe, 10000);
+}
+
+// ── แปลง recentTrade / WS trade → trade object ──
+function processMarketTrade(t) {
+  // ── DEDUP Layer 1: tid (String-normalize ป้องกัน WS=number vs REST=string mismatch!)
+  const tid = (t.tid !== undefined && t.tid !== null) ? String(t.tid) : undefined;
+  if (tid) {
+    if (processedTids.has(tid)) return;
+    processedTids.add(tid);
+    if (processedTids.size > 10000) {
+      const arr = [...processedTids];
+      processedTids.clear();
+      arr.slice(-5000).forEach(x => processedTids.add(x));
+    }
+  }
+  // ── DEDUP Layer 2: hash-based (ป้องกัน tid-less trades)
+  if (t.hash) {
+    if (processedTids.has('h:' + t.hash)) return;
+    processedTids.add('h:' + t.hash);
+  }
+
+  // ระบุ coin name และ market type
+  const rawCoin = t.coin || '';
+  const isSpotCoin = rawCoin.startsWith('@');
+  let coin, mkt;
+  if (isSpotCoin) {
+    mkt = 'spot';
+    // หา name จาก spotCoins
+    const found = spotCoins.find(c => c.spotId === rawCoin);
+    coin = found ? found.name : rawCoin.replace('@','');
+  } else {
+    mkt = 'perps';
+    coin = rawCoin.replace('/USD','').replace('-USD','');
+  }
+
+  if (!coin || STABLES.has(coin)) return;
+
+  const price = parseFloat(t.px || 0);
+  const size  = Math.abs(parseFloat(t.sz || 0));
+  const usd   = price * size;
+  if (usd < 500 || price <= 0) return; // skip dust
+
+  // Direction: B = buyer/Long, A = ask/seller/Short
+  const side = (t.side || '').toUpperCase();
+  let direction;
+  if (mkt === 'spot') {
+    direction = side === 'B' ? 'buy' : 'sell';
+  } else {
+    direction = side === 'B' ? 'long' : 'short';
+  }
+
+  // ดึง taker address ถ้ามี (users = [maker, taker])
+  const users = Array.isArray(t.users) ? t.users : [];
+  const taker = users[1] || users[0] || null;
+  const wallet = (taker && !/^0x0{38,}/.test(taker)) ? taker : '—';
+
+  const action = mkt === 'spot'
+    ? (direction === 'buy' ? 'SPOT_BUY' : 'SPOT_SELL')
+    : 'TRADE';
+
+  addTrade({
+    coin, coinId: rawCoin, mkt, direction, action,
+    size, price, usd,
+    time: new Date(t.time || Date.now()).toTimeString().slice(0,8),
+    _time: t.time || Date.now(), // exchange timestamp สำหรับ fingerprint dedup
+    wallet,
+    lev: null, // recentTrades ไม่มี leverage — enriched async โดย fetchAndEnrichLev()
+    hash: t.hash
+      || (tid ? 'tid:' + tid : null)
+      || (coin + '|' + direction + '|' + Math.round(price) + '|' + Math.round(size * 1e6) + '|' + Math.floor((t.time || Date.now()) / 1000)),
+    tid,
+    isReal: true,
+  });
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// FETCH REAL COIN LIST FROM HYPERLIQUID
+// Strategy: Start simulation immediately with fallback coins,
+// then upgrade silently if API responds (works from file:// or hosted)
+async function loadCoins() {
+  // ── Step 1: Boot immediately with fallback so simulation never waits ──
+  useFallbackCoins();
+
+  // ── Step 2: Try to fetch real data in background (non-blocking) ──
+  try {
+    const API = 'https://api.hyperliquid.xyz/info';
+    const fetchJSON = (body) => fetch(API, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(6000)   // give up after 6 s
+    }).then(r => { if(!r.ok) throw new Error(r.status); return r.json(); });
+
+    // Fire all 3 requests in parallel
+    const [pData, sData, mids] = await Promise.all([
+      fetchJSON({type:'meta'}),
+      fetchJSON({type:'spotMeta'}),
+      fetchJSON({type:'allMids'}),
+    ]);
+
+    // Build perps list (exclude stables)
+    const newPerps = pData.universe
+      .map((c, i) => ({ name: c.name, idx: i, price: parseFloat(mids[c.name] || 0), chg: (Math.random()-0.5)*6 }))
+      .filter(c => !STABLES.has(c.name) && c.price > 0)
+      .sort((a,b) => b.price - a.price);
+
+    // Build spot list
+    const tokenMap = {};
+    if (sData.tokens) sData.tokens.forEach(t => tokenMap[t.index] = t.name);
+    let newSpot = [];
+    if (sData.universe) {
+      newSpot = sData.universe
+        .map((pair, i) => {
+          const baseTokenIdx = pair.tokens ? pair.tokens[0] : null;
+          const name = baseTokenIdx !== null ? (tokenMap[baseTokenIdx] || pair.name) : pair.name;
+          const spotId = '@' + i;
+          const price = parseFloat(mids[spotId] || 0);
+          return { name, spotId, idx: i, price, chg: (Math.random()-0.5)*6 };
+        })
+        .filter(c => !STABLES.has(c.name) && c.price > 0)
+        .sort((a,b) => b.price - a.price);
+    }
+
+    if (newPerps.length > 0) {
+      // Upgrade coin lists with real data
+      perpsCoins = newPerps;
+      spotCoins  = newSpot;
+      document.getElementById('pCnt').textContent = 'PERPS ' + perpsCoins.length;
+      document.getElementById('sCnt').textContent  = 'SPOT '  + spotCoins.length;
+      document.getElementById('totalCoins').textContent = (perpsCoins.length + spotCoins.length);
+      document.getElementById('wsLabel').textContent = 'กำลังเชื่อมต่อ...';
+      renderCoinList();
+      // subscribe coins ใหม่ที่เพิ่งโหลดผ่าน WebSocket
+      if (wsReady) subscribeCoins();
+      else if (!wsConn) connectWebSocket();
+    }
+  } catch(e) {
+    // Silently stay on fallback — already running
+    console.info('Hyperliquid API unreachable, staying in demo mode:', e.message);
+  }
+}
+
+function useFallbackCoins() {
+  perpsCoins = [
+    {name:'BTC',  idx:0,  price:103520,    chg:+1.82},
+    {name:'ETH',  idx:1,  price:2487,      chg:+0.54},
+    {name:'SOL',  idx:2,  price:178.3,     chg:-0.91},
+    {name:'BNB',  idx:3,  price:605,       chg:+0.22},
+    {name:'HYPE', idx:4,  price:29.4,      chg:+3.21},
+    {name:'XRP',  idx:5,  price:2.12,      chg:+0.77},
+    {name:'SUI',  idx:6,  price:3.81,      chg:+1.12},
+    {name:'DOGE', idx:7,  price:0.168,     chg:+1.55},
+    {name:'ARB',  idx:8,  price:0.412,     chg:-1.47},
+    {name:'WIF',  idx:9,  price:1.83,      chg:+2.10},
+    {name:'PEPE', idx:10, price:0.0000142, chg:+5.33},
+    {name:'AVAX', idx:11, price:23.4,      chg:-0.88},
+    {name:'LINK', idx:12, price:13.8,      chg:-0.44},
+    {name:'ADA',  idx:13, price:0.367,     chg:-1.20},
+    {name:'DOT',  idx:14, price:4.12,      chg:+0.33},
+    {name:'OP',   idx:15, price:0.81,      chg:-2.11},
+    {name:'MATIC',idx:16, price:0.38,      chg:-0.76},
+    {name:'MKR',  idx:17, price:1832,      chg:-2.82},
+    {name:'AAVE', idx:18, price:92.2,      chg:+0.13},
+    {name:'LTC',  idx:19, price:54.9,      chg:-2.75},
+    {name:'BCH',  idx:20, price:442.4,     chg:-1.58},
+    {name:'XMR',  idx:21, price:385.2,     chg:+0.73},
+    {name:'ZEC',  idx:22, price:382.7,     chg:-2.97},
+    {name:'TAO',  idx:23, price:283.9,     chg:+2.28},
+    {name:'DASH', idx:24, price:26.4,      chg:-0.86},
+    {name:'PANDORA',idx:25,price:3026,     chg:+2.84},
+    {name:'PAXG', idx:26, price:4596,      chg:+0.53},
+  ];
+  spotCoins = [
+    {name:'HYPE',spotId:'@0',idx:0, price:29.4,  chg:+3.21},
+    {name:'PURR',spotId:'@1',idx:1, price:0.183, chg:+1.14},
+    {name:'ARB', spotId:'@2',idx:2, price:0.412, chg:-1.47},
+    {name:'ATOM',spotId:'@3',idx:3, price:4.62,  chg:-0.55},
+    {name:'WIF', spotId:'@4',idx:4, price:1.83,  chg:+2.10},
+    {name:'BTC', spotId:'@5',idx:5, price:103520,chg:+1.82},
+    {name:'ETH', spotId:'@6',idx:6, price:2487,  chg:+0.54},
+  ];
+  document.getElementById('pCnt').textContent = 'PERPS ' + perpsCoins.length;
+  document.getElementById('sCnt').textContent  = 'SPOT '  + spotCoins.length;
+  document.getElementById('totalCoins').textContent = (perpsCoins.length + spotCoins.length);
+  document.getElementById('wsLabel').textContent = '⚠ Demo Mode · กำลังเชื่อมต่อ...';
+  document.getElementById('dot').classList.add('off');
+  renderCoinList();
+  // เริ่ม real feed (WS + REST supplement + price polling)
+  setTimeout(() => { if (!wsConn) startRealFeed(); }, 100);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// COIN LIST UI
+let searchQ = '';
+let showAllPerps = false;
+let showAllSpot  = false;
+let sbSort = 'def'; // 'def' | 'up' | 'dn'
+const SIDEBAR_LIMIT = 20;
+
+function setSbSort(mode) {
+  sbSort = mode;
+  ['srt-def','srt-up','srt-dn'].forEach(id => {
+    document.getElementById(id).className = 'sb-sort-btn';
+  });
+  const cls = {def:'active-def', up:'active-up', dn:'active-dn'}[mode];
+  document.getElementById('srt-'+mode).className = 'sb-sort-btn ' + cls;
+  showAllPerps = false; showAllSpot = false;
+  renderCoinList();
+}
+
+function sortCoins(arr) {
+  if (sbSort === 'up') return [...arr].sort((a,b) => b.chg - a.chg);
+  if (sbSort === 'dn') return [...arr].sort((a,b) => a.chg - b.chg);
+  return arr; // default: original order (by price/mcap from API)
+}
+
+function filterCoinList(){
+  searchQ = document.getElementById('searchInput').value.toUpperCase();
+  showAllPerps = false;
+  showAllSpot  = false;
+  renderCoinList();
+}
+
+function renderCoinList() {
+  let fP = sortCoins(perpsCoins.filter(c => c.name.includes(searchQ)));
+  let fS = sortCoins(spotCoins.filter(c => c.name.includes(searchQ)));
+
+  // Apply 20-item limit unless search active or showAll toggled
+  const isSearching = searchQ.length > 0;
+  const visP = (isSearching || showAllPerps) ? fP : fP.slice(0, SIDEBAR_LIMIT);
+  const visS = (isSearching || showAllSpot)  ? fS : fS.slice(0, SIDEBAR_LIMIT);
+
+  let html = '';
+
+  // ── PERPS section ──
+  html += `<div class="mkt-header perps">▲ Perpetuals <span class="mkt-cnt">${fP.length}</span></div>`;
+  if (fP.length === 0) html += `<div class="loading-coin" style="font-size:10px;padding:8px 12px;">ไม่พบ</div>`;
+  visP.forEach(c => {
+    const sel = selectedCoin===c.name && selectedMkt==='perps';
+    const cls = sel ? 'coin-item sel-perps' : 'coin-item';
+    const chgCls = c.chg >= 0 ? 'up' : 'dn';
+    html += `<div class="${cls}" id="cp_${c.name}" onclick="selectCoin('${c.name}','perps')">
+      <div class="ci-left">
+        <div class="ci-name">${c.name}</div>
+        <div class="ci-id">$${fmtP(c.price)}</div>
+      </div>
+      <div class="ci-chg ${chgCls}">${c.chg>=0?'+':''}${c.chg.toFixed(2)}%</div>
+    </div>`;
+  });
+  if (!isSearching && fP.length > SIDEBAR_LIMIT) {
+    const rem = fP.length - SIDEBAR_LIMIT;
+    html += !showAllPerps
+      ? `<div class="show-more" onclick="showAllPerps=true;renderCoinList()">+ อีก ${rem} เหรียญ</div>`
+      : `<div class="show-more" onclick="showAllPerps=false;renderCoinList()">▲ ย่อกลับ</div>`;
+  }
+
+  // ── SPOT section ──
+  html += `<div class="mkt-header spot">🔮 Spot <span class="mkt-cnt">${fS.length}</span></div>`;
+  if (fS.length === 0) html += `<div class="loading-coin" style="font-size:10px;padding:8px 12px;">ไม่พบ</div>`;
+  visS.forEach(c => {
+    const sel = selectedCoin===c.name && selectedMkt==='spot';
+    const cls = sel ? 'coin-item sel-spot' : 'coin-item';
+    const chgCls = c.chg >= 0 ? 'up' : 'dn';
+    html += `<div class="${cls}" id="cs_${c.name}" onclick="selectCoin('${c.name}','spot')">
+      <div class="ci-left">
+        <div class="ci-name">${c.name} <span style="font-size:9px;color:var(--t2);">${c.spotId}</span></div>
+        <div class="ci-id">$${fmtP(c.price)}</div>
+      </div>
+      <div class="ci-chg ${chgCls}">${c.chg>=0?'+':''}${c.chg.toFixed(2)}%</div>
+    </div>`;
+  });
+  if (!isSearching && fS.length > SIDEBAR_LIMIT) {
+    const rem = fS.length - SIDEBAR_LIMIT;
+    html += !showAllSpot
+      ? `<div class="show-more" onclick="showAllSpot=true;renderCoinList()">+ อีก ${rem} เหรียญ</div>`
+      : `<div class="show-more" onclick="showAllSpot=false;renderCoinList()">▲ ย่อกลับ</div>`;
+  }
+
+  document.getElementById('coinScroll').innerHTML = html;
+}
+
+function selectCoin(name, mkt) {
+  if (selectedCoin === name && selectedMkt === mkt) {
+    clearCoinFilter(); return;
+  }
+  selectedCoin = name;
+  selectedMkt = mkt;
+  // Update sidebar highlight
+  document.querySelectorAll('.coin-item').forEach(el => el.classList.remove('sel-perps','sel-spot'));
+  const id = mkt==='perps' ? `cp_${name}` : `cs_${name}`;
+  const el = document.getElementById(id);
+  if (el) el.classList.add(mkt==='perps'?'sel-perps':'sel-spot');
+  // Show badge
+  const badge = document.getElementById('coinBadge');
+  badge.style.display = 'flex';
+  badge.className = 'coin-filter-badge ' + mkt;
+  document.getElementById('coinBadgeTxt').textContent = name + (mkt==='spot' ? ' [SPOT]' : ' [PERPS]');
+  renderFeed();
+}
+
+function clearCoinFilter() {
+  selectedCoin = null; selectedMkt = null;
+  document.getElementById('coinBadge').style.display = 'none';
+  document.querySelectorAll('.coin-item').forEach(el => el.classList.remove('sel-perps','sel-spot'));
+  renderFeed();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TRADE FEED STATE
+
+function addTrade(t) {
+  if (!t) return;
+  allTrades.unshift(t);
+  if (allTrades.length > 500) allTrades.pop();
+
+  totalTradesReceived++;
+  const sbTot = document.getElementById('sbTotalTrades');
+  if (sbTot) sbTot.textContent = totalTradesReceived.toLocaleString();
+
+  if (t.usd > lgV) {
+    lgV = t.usd; lgN = (t.mkt==='spot'?'[S]':'')+t.coin;
+    const sbLrg = document.getElementById('sbLargest');
+    if (sbLrg) sbLrg.textContent = '$' + fmt(lgV) + ' ' + lgN;
+  }
+  if (t.mkt==='perps') {
+    if (t.direction==='long')  { lV+=t.usd; lC++; }
+    else                        { sV+=t.usd; sC++; }
+  } else {
+    if (t.direction==='buy')   { sbV+=t.usd; sbC++; }
+    else                        { ssV+=t.usd; ssC++; }
+  }
+
+  // MEGA WHALE: $5M+
+  if (t.usd >= 5000000) {
+    megaTradesCount++;
+    addMegaTrade(t);
+    const sbMega = document.getElementById('sbMegaCount');
+    if (sbMega) sbMega.textContent = megaTradesCount + ' 🐋';
+  }
+
+  updateStats();
+  renderFeed();
+  maybeMobileRefresh();
+  // Whale alert + leverage enrichment
+  // - Fetch lev สำหรับ PERPS trades ที่มี wallet จริง (threshold $50K ขึ้นไป)
+  // - Alert threshold อิงตาม ALERT_CONFIG.minUSD แยกต่างหาก
+  if (t.mkt === 'perps' && t.usd >= 50000 && t.wallet && t.wallet !== '—') {
+    fetchLevForWallet(t.wallet, t.coin).then(lev => {
+      if (lev) t.lev = lev;
+      checkAndAlert(t);
+      renderFeed();
+      if (isMobile() && mobCurrentTab === 'feed') renderMobileFeed();
+    });
+    // Retry เบาๆ หลัง 3s เผื่อ HL API ยังไม่อัปเดต position ทันที
+    setTimeout(() => {
+      if (!t.lev && t.wallet !== '—') {
+        _levCache.delete(t.wallet.toLowerCase() + '|' + t.coin); // clear cache เพื่อ re-fetch
+        fetchLevForWallet(t.wallet, t.coin).then(lev => {
+          if (lev && !t.lev) {
+            t.lev = lev;
+            renderFeed();
+            if (isMobile() && mobCurrentTab === 'feed') renderMobileFeed();
+          }
+        });
+      }
+    }, 3000);
+  } else {
+    checkAndAlert(t);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STATS
+function updateStats() {
+  set('longVol',  '$'+fmt(lV));  set('longCnt',  lC+' trades');
+  set('shortVol', '$'+fmt(sV));  set('shortCnt', sC+' trades');
+  const r = sV>0?(lV/sV).toFixed(2):'—';
+  set('lsRatio', r);
+  set('lsSent', lV>sV?'🟢 Long bias':'🔴 Short bias');
+  set('spotBuyVol',  '$'+fmt(sbV)); set('spotBuyCnt',  sbC+' trades');
+  set('spotSellVol', '$'+fmt(ssV)); set('spotSellCnt', ssC+' trades');
+  set('lgTrade', '$'+fmt(lgV)); set('lgCoin', lgN);
+}
+function set(id,v){ const el=document.getElementById(id); if(el)el.textContent=v; }
+
+// ═══════════════════════════════════════════════════════════════
+// CONTROLS
+function setMktTab(t) {
+  mktTab = t;
+  ['mtAll','mtPerps','mtSpot'].forEach(id=>document.getElementById(id).className='mtab');
+  if(t==='all')   document.getElementById('mtAll').className='mtab aa';
+  if(t==='perps') document.getElementById('mtPerps').className='mtab ap';
+  if(t==='spot')  document.getElementById('mtSpot').className='mtab as';
+  renderFeed();
+}
+function setDir(d) {
+  dirFilter = d;
+  ['fAll','fLong','fShort','fBig'].forEach(id=>document.getElementById(id).className='fbtn');
+  const map={all:'fa',long:'fl',short:'fs',big:'fa'};
+  document.getElementById({all:'fAll',long:'fLong',short:'fShort',big:'fBig'}[d]).className='fbtn '+map[d];
+  renderFeed();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER FEED
+function renderFeed() {
+  let rows = allTrades;
+
+  // Market tab
+  if (mktTab==='perps') rows = rows.filter(t=>t.mkt==='perps');
+  if (mktTab==='spot')  rows = rows.filter(t=>t.mkt==='spot');
+
+  // Direction
+  if (dirFilter==='long')  rows = rows.filter(t=>t.direction==='long');
+  if (dirFilter==='short') rows = rows.filter(t=>t.direction==='short');
+  if (dirFilter==='big')   rows = rows.filter(t=>t.usd>=100000);
+
+  // Selected coin
+  if (selectedCoin) rows = rows.filter(t=>t.coin===selectedCoin && t.mkt===selectedMkt);
+
+  document.getElementById('rowCnt').textContent = rows.length + ' trades';
+
+  const body = document.getElementById('tBody');
+  if (rows.length === 0) {
+    body.innerHTML = `<tr><td colspan="10" class="empty"><span class="spinner"></span>รอ trades จากตลาด · WebSocket ${wsReady ? subscribedCoins.size + ' markets' : 'กำลังเชื่อมต่อ...'}</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = rows.slice(0,100).map(t => {
+    const isP = t.mkt==='perps';
+    let dirLbl, dirCls;
+    if (isP) {
+      dirLbl = t.direction==='long'?'▲ LONG':'▼ SHORT';
+      dirCls = t.direction==='long'?'long':'short';
+    } else {
+      dirLbl = t.direction==='buy'?'▲ BUY':'▼ SELL';
+      dirCls = t.direction==='buy'?'buy':'sell';
+    }
+    const uvCls = t.usd>=5000000?'t5':t.usd>=500000?'t4':t.usd>=100000?'t3':t.usd>=10000?'t2':'t1';
+    const actCls = {NEW:'at-new',INCREASE:'at-inc',FLIP:'at-flip',CLOSE:'at-cls',SPOT_BUY:'at-spt',SPOT_SELL:'at-spt',UNKNOWN:''}[t.action]||'';
+    const coinDisp = isP ? `${t.coin}/USD` : `${t.coin} <span style="color:var(--t2);font-size:9px;">${t.coinId}</span>`;
+    const levDisp  = isP && t.lev ? `<span class="lev">${t.lev}x</span>` : `<span style="color:var(--t2)">—</span>`;
+    const megaGlow = t.usd >= 5000000 ? 'style="background:rgba(0,230,118,.04);border-left:3px solid var(--g);"' : '';
+    return `<tr class="${isP?'rp':'rs'}" ${megaGlow}>
+      <td style="color:var(--t2);font-size:10px;">${t.time}</td>
+      <td><span class="mkt-badge ${isP?'p':'s'}">${isP?'PERPS':'SPOT'}</span></td>
+      <td style="font-weight:700;">${coinDisp}</td>
+      <td><span class="dir ${dirCls}">${dirLbl}</span></td>
+      <td>${levDisp}</td>
+      <td class="sz">${fmtS(t.size)} ${t.coin}</td>
+      <td class="prc">$${fmtP(t.price)}</td>
+      <td class="uv ${uvCls}">${t.usd>=5000000?'🐋 ':t.usd>=500000?'🔵 ':''}$${fmt(t.usd)}</td>
+      <td><span class="act-tag ${actCls}">${t.action}</span></td>
+      <td class="wall" style="${t.wallet !== '—' ? 'cursor:pointer;color:var(--b);text-decoration:underline dotted;' : 'color:var(--t2);'}" onclick="${t.wallet !== '—' ? `openWallet('${t.wallet}')` : ''}">${t.wallet !== '—' ? t.wallet.slice(0,6)+'…'+t.wallet.slice(-4) : '—'}</td>
+    </tr>`;
+  }).join('');
+
+  if (autoScroll) document.getElementById('tblWrap').scrollTop = 0;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// WALLET MODAL — real Hyperliquid positions with full address
+// HL API: POST /info {type:'clearinghouseState', user: '0x...'}
+// HL API: POST /info {type:'spotClearinghouseState', user: '0x...'}
+
+let currentModalAddr = '';
+let walletRefreshTimer = null;
+
+function onAddrInput() {
+  // live-validate: turn border green if looks like valid address
+  const v = document.getElementById('modalAddrInput').value.trim();
+  const valid = /^0x[0-9a-fA-F]{40}$/.test(v);
+  document.getElementById('modalAddrInput').style.borderColor =
+    v.length === 0 ? '' : valid ? 'var(--g)' : 'var(--r)';
+}
+
+// Called from trade table wallet click — now receives full 42-char address
+async function openWallet(fullAddr) {
+  document.getElementById('walletModal').classList.add('open');
+  // Pre-fill input with the full address
+  document.getElementById('modalAddrInput').value = fullAddr;
+  onAddrInput();
+  // Fetch immediately
+  await fetchWalletData(fullAddr);
+}
+
+async function lookupAddr() {
+  const raw = document.getElementById('modalAddrInput').value.trim();
+  // Validate Ethereum address format
+  if (!/^0x[0-9a-fA-F]{40}$/.test(raw)) {
+    document.getElementById('modalBody').innerHTML = `
+      <div class="modal-hint">
+        <div style="font-size:24px;margin-bottom:8px;">⚠️</div>
+        <div style="color:var(--r);font-size:12px;margin-bottom:6px;">Address ไม่ถูกต้อง</div>
+        <div style="color:var(--t2);font-size:10px;">ต้องขึ้นต้นด้วย 0x และมีความยาว 42 ตัวอักษร (40 hex chars)<br>
+        ตัวอย่าง: <span style="color:var(--b);">0x049bdC370620bEaB340B01072FA580FD57745E7D</span></div>
+      </div>`;
+    document.getElementById('modalAddrInput').style.borderColor = 'var(--r)';
+    return;
+  }
+  await fetchWalletData(raw);
+}
+
+async function quickLookup(addr) {
+  document.getElementById('modalAddrInput').value = addr;
+  onAddrInput();
+  await fetchWalletData(addr);
+}
+
+// Prompt user to enter address manually (whale pool removed)
+async function tryAnotherWhale() {
+  document.getElementById('modalAddrInput').focus();
+  document.getElementById('modalBody').innerHTML = `<div class="modal-hint">
+    <div style="font-size:22px;margin-bottom:10px;">🔍</div>
+    <div style="color:var(--t0);font-size:12px;margin-bottom:6px;">กรอก Wallet Address เพื่อดู Positions</div>
+    <div style="color:var(--t2);font-size:10px;">คลิก wallet address จาก feed หรือวาง address 0x... แล้วกด Enter</div>
+  </div>`;
+}
+
+async function fetchWalletData(addr) {
+  // ป้องกัน fetch wallet ปลอม/zeros
+  const isZeroAddr = /^0x0+$/.test(addr.replace(/0x/, '').replace(/0/g, ''));
+  if (!addr || addr.length !== 42 || !/^0x[0-9a-fA-F]{40}$/.test(addr) || isZeroAddr) {
+    document.getElementById('modalBody').innerHTML = `
+      <div class="modal-hint">
+        <div style="font-size:22px;margin-bottom:8px;">⚠️</div>
+        <div style="color:var(--r);font-size:12px;margin-bottom:6px;">Wallet Address ไม่ถูกต้อง</div>
+        <div style="color:var(--t2);font-size:10px;">Address นี้ไม่ใช่ wallet จริงบน Hyperliquid<br>กรอก address จริง (0x...) แล้วกด ค้นหา</div>
+      </div>`;
+    return;
+  }
+  currentModalAddr = addr;
+  const short = addr.slice(0,6)+'…'+addr.slice(-4);
+
+  // Clear any existing auto-refresh
+  if (walletRefreshTimer) { clearInterval(walletRefreshTimer); walletRefreshTimer = null; }
+
+  // Show action bar
+  document.getElementById('modalActionBar').style.display = 'flex';
+  document.getElementById('modalAddrShort').textContent = short;
+  const poolBadge = document.getElementById('modalPoolBadge');
+  if (poolBadge) poolBadge.style.display = 'none'; // ไม่มี whale pool แล้ว
+  document.getElementById('modalHlLink').href = 'https://app.hyperliquid.xyz/explorer/address/' + addr;
+  document.getElementById('modalHlPortfolio').href = 'https://app.hyperliquid.xyz/portfolio/' + addr;
+
+  document.getElementById('modalBody').innerHTML =
+    `<div class="modal-loading"><span class="spinner"></span>กำลังดึงข้อมูล positions จาก Hyperliquid...</div>`;
+
+  const HL = 'https://api.hyperliquid.xyz/info';
+  const post = (body) => fetch(HL, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(8000)
+  }).then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); });
+
+  const doFetch = async (isRefresh) => {
+    try {
+      // userFills ต้องใช้ lowercase address และ format ที่ถูกต้อง
+      const addrLower = addr.toLowerCase();
+      const safePost = (body) => fetch(HL, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(8000)
+      }).then(r => r.ok ? r.json() : null).catch(() => null);
+
+      const [perp, spot, fills] = await Promise.all([
+        safePost({type:'clearinghouseState',     user: addrLower}),
+        safePost({type:'spotClearinghouseState', user: addrLower}),
+        safePost({type:'userFills',              user: addrLower}),
+      ]);
+      const fillsData = Array.isArray(fills) ? fills : [];
+      renderRealModal(addr, perp, spot, fillsData, isRefresh);
+    } catch(e) {
+      if (!isRefresh) {
+        document.getElementById('modalBody').innerHTML = `
+          <div class="modal-hint">
+            <div style="font-size:24px;margin-bottom:8px;">❌</div>
+            <div style="color:var(--r);font-size:12px;margin-bottom:6px;">เชื่อมต่อ API ไม่สำเร็จ</div>
+            <div style="color:var(--t2);font-size:10px;">${e.message}</div>
+          </div>`;
+      }
+    }
+  };
+
+  await doFetch(false);
+
+  // Auto-refresh every 30 seconds while modal is open
+  walletRefreshTimer = setInterval(() => {
+    if (document.getElementById('walletModal').classList.contains('open') && currentModalAddr === addr) {
+      doFetch(true);
+    } else {
+      clearInterval(walletRefreshTimer); walletRefreshTimer = null;
+    }
+  }, 30000);
+}
+
+function renderRealModal(addr, perp, spot, fills, isRefresh) {
+  let html = '';
+  const short = addr.slice(0,6)+'…'+addr.slice(-4);
+
+  // ── Check if API returned valid data ──
+  const hasData = perp !== null;
+  const ms = perp?.marginSummary || {};
+  const acctVal   = parseFloat(ms.accountValue || 0);
+  const totalMrgn = parseFloat(ms.totalMarginUsed || 0);
+  const withdraw  = parseFloat(ms.withdrawable || 0);
+
+  // If account value is $0 and no positions/balances → wallet exists but empty
+  const openPos = (perp?.assetPositions || []).filter(p => parseFloat(p.position?.szi || 0) !== 0);
+  const hasSpot = spot?.balances?.some(b => parseFloat(b.total||0) > 0);
+  const isEmpty = hasData && acctVal === 0 && openPos.length === 0 && !hasSpot;
+
+  // ── Source label ──
+  const sourceLabel = `<span style="font-size:9px;color:var(--b);margin-left:8px;">● Custom Address</span>`;
+
+  if (isEmpty) {
+    // Wallet exists on-chain but has no Hyperliquid activity
+    html += `<div style="padding:10px 0 16px;display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10px;color:var(--t2);">
+      <span style="color:var(--y);">${short}</span>${sourceLabel}
+      <span style="margin-left:auto;color:var(--t2);">ไม่พบ activity บน Hyperliquid</span>
+    </div>`;
+  }
+
+  // Spot holdings value
+  let spotVal = 0;
+  if (spot?.balances) {
+    spot.balances.forEach(b => {
+      const price = perpsCoins.find(c=>c.name===b.coin)?.price || spotCoins.find(c=>c.name===b.coin)?.price || 0;
+      spotVal += parseFloat(b.total||0) * price;
+    });
+  }
+
+  html += `<div class="pos-overview">
+    <div class="pos-overview-card">
+      <div class="poc-title">Account Value</div>
+      <div class="poc-val" style="color:var(--y)">$${fmt(acctVal)}</div>
+      <div class="poc-sub">Perps + Collateral</div>
+    </div>
+    <div class="pos-overview-card">
+      <div class="poc-title">Margin Used</div>
+      <div class="poc-val" style="color:var(--b)">$${fmt(totalMrgn)}</div>
+      <div class="poc-sub">Free: $${fmt(withdraw)}</div>
+    </div>
+    <div class="pos-overview-card">
+      <div class="poc-title">Spot Holdings</div>
+      <div class="poc-val" style="color:var(--p)">$${fmt(spotVal)}</div>
+      <div class="poc-sub">${spot?.balances?.length || 0} tokens</div>
+    </div>
+  </div>`;
+
+  // ── OPEN PERP POSITIONS (styled like image 3) ──
+  // openPos already computed above
+
+  if (openPos.length > 0) {
+    // Total unrealised PnL
+    const totalPnl = openPos.reduce((s,p) => s + parseFloat(p.position?.unrealizedPnl||0), 0);
+    const totalPnlCls = totalPnl >= 0 ? 'pnl-pos' : 'pnl-neg';
+
+    html += `<div class="pos-section-title">
+      <span><span class="live-dot"></span>Perpetual Positions (${openPos.length})</span>
+      <span class="${totalPnlCls}">uPnL: ${totalPnl>=0?'+':''}$${fmt(Math.abs(totalPnl))}</span>
+    </div>`;
+
+    openPos.forEach(p => {
+      const pos   = p.position;
+      const szi   = parseFloat(pos.szi);
+      const isLong = szi > 0;
+      const entry  = parseFloat(pos.entryPx || 0);
+      const liqPx  = parseFloat(pos.liquidationPx || 0);
+      const pnl    = parseFloat(pos.unrealizedPnl || 0);
+      const pnlCls = pnl >= 0 ? 'pnl-pos' : 'pnl-neg';
+      const mrgn   = parseFloat(pos.marginUsed || 0);
+      const lev    = mrgn > 0 ? (Math.abs(szi) * entry / mrgn).toFixed(1) : '—';
+      const funding = parseFloat(pos.cumFunding?.allTime || 0);
+      const fundCls = funding >= 0 ? 'pnl-pos' : 'pnl-neg';
+
+      // ROE %
+      const roe = mrgn > 0 ? ((pnl / mrgn) * 100).toFixed(2) : '—';
+      const roeCls = parseFloat(roe) >= 0 ? 'pnl-pos' : 'pnl-neg';
+
+      // Break-even approximation
+      const be = entry; // simplified; real BE factors in fees
+
+      html += `<div class="pos-card ${isLong?'pos-long':'pos-short'}">
+        <div class="pos-card-header">
+          <div class="pos-coin-icon">${pos.coin.slice(0,3)}</div>
+          <div class="pos-coin-name">${pos.coin}-USD</div>
+          <span class="pos-side-badge ${isLong?'long':'short'}">${isLong?'LONG':'SHORT'}</span>
+          <span class="pos-lev">${lev}x</span>
+          <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--t2);">Isolated</span>
+        </div>
+        <div class="pos-card-grid">
+          <div class="pos-field">
+            <div class="pos-field-lbl">Value</div>
+            <div class="pos-field-val" style="color:var(--y)">$${fmt(Math.abs(szi)*entry)}</div>
+          </div>
+          <div class="pos-field">
+            <div class="pos-field-lbl">Amount</div>
+            <div class="pos-field-val">${fmtS(Math.abs(szi))}</div>
+          </div>
+          <div class="pos-field">
+            <div class="pos-field-lbl">Entry</div>
+            <div class="pos-field-val">$${fmtP(entry)}</div>
+          </div>
+          <div class="pos-field">
+            <div class="pos-field-lbl">Mark / BE</div>
+            <div class="pos-field-val" style="color:var(--b)">$${fmtP(be)}</div>
+          </div>
+          <div class="pos-field">
+            <div class="pos-field-lbl">uPnL (ROE)</div>
+            <div class="pos-field-val ${pnlCls}">${pnl>=0?'+':''}$${fmt(Math.abs(pnl))}<br>
+              <span style="font-size:9px;">${parseFloat(roe)>=0?'+':''}${roe}%</span></div>
+          </div>
+          <div class="pos-field">
+            <div class="pos-field-lbl">Liq. Price</div>
+            <div class="pos-field-val" style="color:var(--r)">${liqPx > 0 ? '$'+fmtP(liqPx) : 'None'}</div>
+          </div>
+          <div class="pos-field" style="margin-top:6px;">
+            <div class="pos-field-lbl">Margin Used</div>
+            <div class="pos-field-val">$${fmt(mrgn)}</div>
+          </div>
+          <div class="pos-field" style="margin-top:6px;">
+            <div class="pos-field-lbl">Funding</div>
+            <div class="pos-field-val ${fundCls}">${funding>=0?'+':''}$${fmt(Math.abs(funding))}</div>
+          </div>
+        </div>
+      </div>`;
+    });
+  } else {
+    html += `<div class="pos-section-title">Perpetual Positions</div>
+      <div class="no-data" style="padding:16px;">ไม่มี open positions</div>`;
+  }
+
+  // ── SPOT BALANCES ──
+  if (spot?.balances && spot.balances.length > 0) {
+    const nonZero = spot.balances.filter(b => parseFloat(b.total||0) > 0);
+    if (nonZero.length > 0) {
+      html += `<div class="pos-section-title" style="margin-top:14px;">🔮 Spot Holdings (${nonZero.length})</div>
+        <table class="pos-table"><thead><tr>
+          <th>Token</th><th>Total</th><th>Available</th><th>Est. Value</th>
+        </tr></thead><tbody>`;
+      nonZero.forEach(b => {
+        const pr = perpsCoins.find(c=>c.name===b.coin)?.price || spotCoins.find(c=>c.name===b.coin)?.price || 0;
+        const val = parseFloat(b.total||0) * pr;
+        html += `<tr>
+          <td style="font-weight:700;">${b.coin}</td>
+          <td>${fmtS(parseFloat(b.total||0))}</td>
+          <td style="color:var(--t1)">${fmtS(parseFloat(b.hold||0) ? parseFloat(b.total||0)-parseFloat(b.hold||0) : parseFloat(b.total||0))}</td>
+          <td style="color:var(--y);">${val>0?'$'+fmt(val):'—'}</td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+    }
+  }
+
+  // ── RECENT FILLS ──
+  if (Array.isArray(fills) && fills.length > 0) {
+    const recent = fills.slice(0,20);
+    html += `<div class="pos-section-title" style="margin-top:14px;">🕐 Recent Fills (${fills.length} total)</div>
+      <table class="pos-table"><thead><tr>
+        <th>Time</th><th>Coin</th><th>Side</th><th>Size</th><th>Price</th><th>Value</th><th>Fee</th>
+      </tr></thead><tbody>`;
+    recent.forEach(f => {
+      const isBuy = f.side === 'B';
+      const val = parseFloat(f.sz||0) * parseFloat(f.px||0);
+      const t = new Date(f.time);
+      const ts = t.toLocaleTimeString('th',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      html += `<tr>
+        <td style="color:var(--t2);font-size:10px;">${ts}</td>
+        <td style="font-weight:700;">${f.coin}</td>
+        <td><span class="dir ${isBuy?'long':'short'}">${isBuy?'▲ BUY':'▼ SELL'}</span></td>
+        <td style="color:var(--t1)">${fmtS(parseFloat(f.sz||0))}</td>
+        <td>$${fmtP(parseFloat(f.px||0))}</td>
+        <td style="font-weight:700;">$${fmt(val)}</td>
+        <td style="color:var(--t2)">${f.fee ? '$'+parseFloat(f.fee).toFixed(3) : '—'}</td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+    if (fills.length > 20) html += `<div style="font-size:9px;color:var(--t2);text-align:right;padding:4px 0;">แสดง 20 / ${fills.length} fills</div>`;
+  }
+
+  html += `<div style="margin-top:12px;font-size:9px;color:var(--t2);font-family:var(--mono);text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;">
+    <span class="live-dot" style="background:var(--b);"></span>
+    ข้อมูล real-time จาก Hyperliquid API · อัพเดต: ${new Date().toLocaleTimeString('th')}
+    <span style="opacity:.5;">· auto-refresh ทุก 30s</span>
+  </div>`;
+
+  document.getElementById('modalBody').innerHTML = html;
+}
+
+function closeModal() {
+  document.getElementById('walletModal').classList.remove('open');
+  if (walletRefreshTimer) { clearInterval(walletRefreshTimer); walletRefreshTimer = null; }
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+// ═══════════════════════════════════════════════════════════════
+// UTILS
+function fmt(n){ if(n>=1e6)return(n/1e6).toFixed(2)+'M'; if(n>=1e3)return(n/1e3).toFixed(1)+'K'; return n.toLocaleString(undefined,{maximumFractionDigits:0}); }
+function fmtP(n){ if(n>=1000)return n.toLocaleString(undefined,{maximumFractionDigits:0}); if(n>=1)return n.toFixed(3); if(n>=0.001)return n.toFixed(5); return n.toFixed(8); }
+function fmtS(n){ if(n>=1e6)return(n/1e6).toFixed(3)+'M'; if(n>=1000)return(n/1e3).toFixed(2)+'K'; if(n<0.0001)return n.toExponential(3); return n.toFixed(4); }
+
+function updateClock(){ set('clock', new Date().toTimeString().slice(0,8)); }
+function startRealFeed() {
+  // ── เชื่อมต่อ WebSocket หลัก ──
+  if (!wsConn) connectWebSocket();
+  // ── REST supplement + price polling ──
+  scheduleRestFallback();
+  pollRealPrices();
+  setInterval(pollRealPrices, 8000);
+}
+
+// alias เพื่อให้ compatible กับ code เดิม
+function startSim() { startRealFeed(); }
+
+async function pollRealPrices() {
+  try {
+    const r = await fetch('https://api.hyperliquid.xyz/info', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({type:'allMids'}),
+      signal: AbortSignal.timeout(4000)
+    });
+    if (!r.ok) return;
+    const mids = await r.json();
+    perpsCoins = perpsCoins.map(c => ({...c, price: parseFloat(mids[c.name] || c.price) || c.price}));
+    spotCoins  = spotCoins.map(c  => ({...c, price: parseFloat(mids[c.spotId] || c.price) || c.price}));
+    renderCoinList();
+  } catch(e) { /* silent */ }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MOBILE UI SYSTEM
+// ═══════════════════════════════════════════════════════════════
+const isMobile = () => window.innerWidth <= 800;
+let mobCurrentTab = 'feed';
+let mobAlertCount = 0;
+
+function mobTab(tab) {
+  if (!isMobile()) return;
+  mobCurrentTab = tab;
+  // Update nav buttons
+  ['feed','stats','coins','alerts','wallet'].forEach(t => {
+    const btn = document.getElementById('mn' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
+
+  // Always hide desktop-only elements on mobile
+  const desktopFeed    = document.getElementById('tblWrap');
+  const desktopControls= document.querySelector('.controls');
+  const desktopAlerts  = document.getElementById('alertPanel');
+  const desktopMega    = document.getElementById('megaDashboard');
+  const desktopStats   = document.querySelector('.stats');
+  const mobileFeed     = document.getElementById('mobileCards');
+
+  // Reset: hide everything first
+  if (desktopFeed)     desktopFeed.style.display    = 'none';
+  if (mobileFeed)      mobileFeed.style.display     = 'none';
+  if (desktopControls) desktopControls.style.display= 'none';
+  if (desktopAlerts)   desktopAlerts.style.display  = 'none';
+  if (desktopMega)     desktopMega.style.display    = 'none';
+  if (desktopStats)    desktopStats.style.display   = 'none';
+  // Hide other mobile panels
+  ['mobStatsGrid','mobCoinsWrap','mobAlertsWrap'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+
+  if (tab === 'feed') {
+    if (desktopControls) desktopControls.style.display = 'flex';
+    if (desktopAlerts)   desktopAlerts.style.display   = 'flex';
+    if (desktopMega)     desktopMega.style.display     = '';
+    if (desktopStats)    desktopStats.style.display    = '';
+    // mobileCards uses flex:1 to fill remaining .main space
+    if (mobileFeed) { mobileFeed.style.display = 'flex'; mobileFeed.style.flexDirection = 'column'; renderMobileFeed(); }
+    mobAlertCount = 0;
+    updateMobAlertBadge();
+  } else if (tab === 'stats') {
+    renderMobileStats();
+  } else if (tab === 'coins') {
+    renderMobileCoins();
+  } else if (tab === 'alerts') {
+    renderMobileAlerts();
+    mobAlertCount = 0;
+    updateMobAlertBadge();
+  } else if (tab === 'wallet') {
+    // Open wallet modal
+    document.getElementById('walletModal').classList.add('open');
+    mobCurrentTab = 'feed'; // reset so next time shows feed
+  }
+}
+
+
+function mobSetFilter(mkt, dir) {
+  mktTab = mkt;
+  dirFilter = dir;
+  // Update button states
+  document.querySelectorAll('.mob-filter-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderMobileFeed();
+}
+
+function updateMobAlertBadge() {
+  const el = document.getElementById('mnAlertBadge');
+  if (!el) return;
+  el.textContent = mobAlertCount > 0 ? `🔴 ${mobAlertCount}` : 'Alerts';
+}
+
+function renderMobileFeed() {
+  const el = document.getElementById('mobileCards');
+  if (!el) return;
+
+  // Apply filters same as desktop
+  let rows = allTrades;
+  if (mktTab==='perps') rows = rows.filter(t=>t.mkt==='perps');
+  if (mktTab==='spot')  rows = rows.filter(t=>t.mkt==='spot');
+  if (dirFilter==='long')  rows = rows.filter(t=>t.direction==='long');
+  if (dirFilter==='short') rows = rows.filter(t=>t.direction==='short');
+  if (dirFilter==='big')   rows = rows.filter(t=>t.usd>=100000);
+  if (selectedCoin) rows = rows.filter(t=>t.coin===selectedCoin && t.mkt===selectedMkt);
+
+  if (rows.length === 0) {
+    el.innerHTML = '<div class="empty"><span class="spinner"></span>รอ trades...</div>';
+    return;
+  }
+
+  el.innerHTML = rows.slice(0, 80).map(t => {
+    const isP = t.mkt === 'perps';
+    const isLong = t.direction === 'long' || t.direction === 'buy';
+    const dirLbl = isP ? (isLong ? '▲ LONG' : '▼ SHORT') : (isLong ? '▲ BUY' : '▼ SELL');
+    const dirCls = isLong ? 'long' : 'short';
+    // 5-tier color
+    const uvColor = t.usd>=5000000?'var(--g)':t.usd>=500000?'var(--p)':t.usd>=100000?'var(--y)':t.usd>=10000?'var(--t0)':'var(--t2)';
+    const uvPrefix = t.usd>=5000000?'🐋 ':t.usd>=500000?'🔵 ':'';
+    const wallet = t.wallet && t.wallet !== '—' ? t.wallet.slice(0,6)+'…'+t.wallet.slice(-4) : '—';
+    return `<div class="m-card" onclick="${t.wallet && t.wallet !== '—' ? `openWallet('${t.wallet}')` : ''}">
+      <div class="m-card-left">
+        <div class="m-card-coin">${t.coin}${isP?'/USD':''}</div>
+        <div class="m-card-time">${t.time} · <span style="color:${isP?'var(--b)':'var(--p)'};">${isP?'PERPS':'SPOT'}</span></div>
+        <div class="m-card-wallet" style="${t.wallet&&t.wallet!=='—'?'':'color:var(--t2);'}">${wallet}</div>
+      </div>
+      <div class="m-card-mid">
+        <span class="dir ${dirCls}" style="font-size:10px;">${dirLbl}</span>
+        <span style="font-family:var(--mono);font-size:9px;color:var(--t2);">${fmtS(t.size)} ${t.coin}</span>
+        ${t.lev ? `<span style="font-family:var(--mono);font-size:9px;color:var(--y);">⚡${t.lev}x</span>` : ''}
+        <span class="act-tag ${({TRADE:'',NEW:'at-new',INCREASE:'at-inc',FLIP:'at-flip',CLOSE:'at-cls',SPOT_BUY:'at-spt',SPOT_SELL:'at-spt'})[t.action]||''}">${t.action}</span>
+      </div>
+      <div class="m-card-right">
+        <div class="m-card-usd" style="color:${uvColor}">${uvPrefix}$${fmt(t.usd)}</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--t2);">$${fmtP(t.price)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderMobileStats() {
+  const main = document.querySelector('.main');
+  if (!main) return;
+  // Hide feed elements
+  ['tblWrap','alertPanel','megaDashboard'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  const ctrl = document.querySelector('.controls');
+  if (ctrl) ctrl.style.display = 'none';
+  const stats = document.querySelector('.stats');
+  if (stats) stats.style.display = 'none';
+  const mobileFeed = document.getElementById('mobileCards');
+  if (mobileFeed) mobileFeed.style.display = 'none';
+
+  let grid = document.getElementById('mobStatsGrid');
+  if (!grid) {
+    grid = document.createElement('div');
+    grid.id = 'mobStatsGrid';
+    grid.className = 'mob-stats-grid';
+    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px;overflow-y:auto;flex:1;';
+    main.appendChild(grid);
+  } else {
+    grid.style.display = 'grid';
+  }
+  const ls = sV > 0 ? (lV/sV).toFixed(2) : '—';
+  grid.innerHTML = `
+    <div class="mob-stat-card"><div class="mob-stat-lbl">▲ PERPS Long Vol</div><div class="mob-stat-val" style="color:var(--g)">$${fmt(lV)}</div><div class="mob-stat-sub">${lC} trades</div></div>
+    <div class="mob-stat-card"><div class="mob-stat-lbl">▼ PERPS Short Vol</div><div class="mob-stat-val" style="color:var(--r)">$${fmt(sV)}</div><div class="mob-stat-sub">${sC} trades</div></div>
+    <div class="mob-stat-card"><div class="mob-stat-lbl">L/S Ratio</div><div class="mob-stat-val" style="color:var(--b)">${ls}</div><div class="mob-stat-sub">${lV>sV?'🟢 Long bias':'🔴 Short bias'}</div></div>
+    <div class="mob-stat-card"><div class="mob-stat-lbl">🔮 SPOT Buy</div><div class="mob-stat-val" style="color:var(--p)">$${fmt(sbV)}</div><div class="mob-stat-sub">${sbC} trades</div></div>
+    <div class="mob-stat-card"><div class="mob-stat-lbl">🔮 SPOT Sell</div><div class="mob-stat-val" style="color:var(--y)">$${fmt(ssV)}</div><div class="mob-stat-sub">${ssC} trades</div></div>
+    <div class="mob-stat-card"><div class="mob-stat-lbl">Largest Trade</div><div class="mob-stat-val" style="color:var(--y)">$${fmt(lgV)}</div><div class="mob-stat-sub">${lgN}</div></div>
+    <div class="mob-stat-card" style="grid-column:1/-1;"><div class="mob-stat-lbl">Total Trades Received</div><div class="mob-stat-val" style="color:var(--b)">${totalTradesReceived.toLocaleString()}</div><div class="mob-stat-sub">$5M+ MEGA WHALE: ${megaTradesCount}</div></div>
+    <div class="mob-stat-card" style="grid-column:1/-1;">
+      <div class="mob-stat-lbl">Connection Status</div>
+      <div class="mob-stat-val" style="font-size:13px;${wsReady?'color:var(--g)':'color:var(--r)'}">${wsReady ? '● Connected' : '⚠ Reconnecting'}</div>
+      <div class="mob-stat-sub">${subscribedCoins.size} markets · REST: ${lastRestPollTime||'—'}</div>
+    </div>`;
+}
+
+function renderMobileCoins() {
+  const main = document.querySelector('.main');
+  if (!main) return;
+  ['tblWrap','alertPanel','megaDashboard'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+  const ctrl = document.querySelector('.controls'); if (ctrl) ctrl.style.display = 'none';
+  const stats = document.querySelector('.stats'); if (stats) stats.style.display = 'none';
+  const mobileFeed = document.getElementById('mobileCards'); if (mobileFeed) mobileFeed.style.display = 'none';
+  const grid = document.getElementById('mobStatsGrid'); if (grid) grid.style.display = 'none';
+
+  let coinWrap = document.getElementById('mobCoinsWrap');
+  if (!coinWrap) {
+    coinWrap = document.createElement('div');
+    coinWrap.id = 'mobCoinsWrap';
+    coinWrap.style.cssText = 'flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+    main.appendChild(coinWrap);
+  } else {
+    coinWrap.style.display = 'block';
+  }
+
+  const topPerps = [...perpsCoins].sort((a,b)=>b.price-a.price).slice(0,30);
+  const topSpot  = [...spotCoins].sort((a,b)=>b.price-a.price).slice(0,20);
+
+  coinWrap.innerHTML = `
+    <div style="padding:8px 14px;background:var(--bg2);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:9px;color:var(--b);letter-spacing:1px;">▲ PERPETUALS (${perpsCoins.length})</div>
+    ${topPerps.map(c => `<div class="mob-coin-row" onclick="selectCoin('${c.name}','perps');mobTab('feed')">
+      <div><div class="mob-coin-name">${c.name}/USD</div><div class="mob-coin-price">$${fmtP(c.price)}</div></div>
+      <div class="mob-coin-chg ${c.chg>=0?'up':'dn'}">${c.chg>=0?'+':''}${c.chg.toFixed(2)}%</div>
+    </div>`).join('')}
+    <div style="padding:8px 14px;background:var(--bg2);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:9px;color:var(--p);letter-spacing:1px;">🔮 SPOT (${spotCoins.length})</div>
+    ${topSpot.map(c => `<div class="mob-coin-row" onclick="selectCoin('${c.name}','spot');mobTab('feed')">
+      <div><div class="mob-coin-name">${c.name} <span style="font-size:9px;color:var(--t2);">${c.spotId}</span></div><div class="mob-coin-price">$${fmtP(c.price)}</div></div>
+      <div class="mob-coin-chg ${c.chg>=0?'up':'dn'}">${c.chg>=0?'+':''}${c.chg.toFixed(2)}%</div>
+    </div>`).join('')}`;
+}
+
+function renderMobileAlerts() {
+  const main = document.querySelector('.main');
+  if (!main) return;
+  ['tblWrap','alertPanel','megaDashboard'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.style.display = 'none';
+  });
+  const ctrl = document.querySelector('.controls'); if (ctrl) ctrl.style.display = 'none';
+  const stats = document.querySelector('.stats'); if (stats) stats.style.display = 'none';
+  const mobileFeed = document.getElementById('mobileCards'); if (mobileFeed) mobileFeed.style.display = 'none';
+  const grid = document.getElementById('mobStatsGrid'); if (grid) grid.style.display = 'none';
+  const coinWrap = document.getElementById('mobCoinsWrap'); if (coinWrap) coinWrap.style.display = 'none';
+
+  let alertWrap = document.getElementById('mobAlertsWrap');
+  if (!alertWrap) {
+    alertWrap = document.createElement('div');
+    alertWrap.id = 'mobAlertsWrap';
+    alertWrap.style.cssText = 'flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;';
+    main.appendChild(alertWrap);
+  } else {
+    alertWrap.style.display = 'block';
+  }
+
+  const all = [...megaTradesHistory.map(a=>({...a,isMega:true})), ...alertHistory].slice(0,40);
+  if (all.length === 0) {
+    alertWrap.innerHTML = '<div class="empty">ยังไม่มี Whale Alerts ≥ $100K</div>';
+    return;
+  }
+  alertWrap.innerHTML = all.map(a => {
+    const isLong = a.direction==='long'||a.direction==='buy';
+    const uvColor = a.isMega ? 'var(--g)' : isLong ? 'var(--g)' : 'var(--r)';
+    const wallet = a.wallet && a.wallet!=='—' ? a.wallet.slice(0,6)+'…'+a.wallet.slice(-4) : '—';
+    return `<div class="m-card" style="${a.isMega?'background:rgba(0,230,118,.04);border-left:3px solid var(--g);':''}" onclick="${a.wallet&&a.wallet!=='—'?`openWallet('${a.wallet}')`:''}">
+      <div class="m-card-left">
+        <div class="m-card-coin">${a.isMega?'🐋 ':'🔵 '}${a.coin}</div>
+        <div class="m-card-time">${a.time} · ${a.mkt?.toUpperCase()||'PERPS'}</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--b);">${wallet}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
+        <div style="font-family:var(--mono);font-size:15px;font-weight:700;color:${uvColor};">$${fmt(a.usd)}</div>
+        <span class="dir ${isLong?'long':'short'}" style="font-size:10px;">${isLong?'▲ LONG':'▼ SHORT'}</span>
+        ${a.isMega?'<span style="font-family:var(--mono);font-size:9px;color:var(--g);">🚨 MEGA WHALE</span>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Mobile feed refresh hook — called from addTrade directly ──
+// (ไม่ override renderFeed เพราะ function hoisting ทำให้ recursive)
+function maybeMobileRefresh() {
+  if (isMobile() && mobCurrentTab === 'feed') {
+    renderMobileFeed();
+  }
+}
+
+// ── Alert count badge for mobile ──
+function onNewAlert() {
+  if (isMobile() && mobCurrentTab !== 'alerts') {
+    mobAlertCount++;
+    updateMobAlertBadge();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MOBILE INIT — switch layout on load
+function initMobileLayout() {
+  if (!isMobile()) return;
+  // Show mobile nav (inside .body as last flex child)
+  const nav = document.getElementById('mobNav');
+  if (nav) nav.style.display = 'flex';
+
+  // ── Hide ALL desktop-only elements immediately ──
+  // (ป้องกันไม่ให้กิน height ก่อน mobTab() ทำงาน)
+  const toHide = ['tblWrap','alertPanel','megaDashboard'];
+  toHide.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+  const desktopStats = document.querySelector('.stats');
+  if (desktopStats) desktopStats.style.display = 'none';
+  const desktopControls = document.querySelector('.controls');
+  if (desktopControls) desktopControls.style.display = 'none';
+  const desktopSidebar = document.querySelector('.sidebar');
+  if (desktopSidebar) desktopSidebar.style.display = 'none';
+
+  // Mobile status row (Reconnecting / Markets / Trades) — ใน .main
+  const main = document.querySelector('.main');
+  if (main && !document.getElementById('mobStatusRow')) {
+    const mobStatusRow = document.createElement('div');
+    mobStatusRow.id = 'mobStatusRow';
+    mobStatusRow.className = 'mob-status-row';
+    mobStatusRow.style.cssText = 'display:flex;flex-shrink:0;';
+    mobStatusRow.innerHTML = `
+      <div class="mob-s-item"><span class="mob-s-val green" id="mob-ws-st">⚡ Connecting</span></div>
+      <div class="mob-s-item">Markets: <span class="mob-s-val" id="mob-mkts">—</span></div>
+      <div class="mob-s-item">Trades: <span class="mob-s-val" id="mob-tot">0</span></div>
+      <div class="mob-s-item">$5M+: <span class="mob-s-val green" id="mob-mega">0</span></div>`;
+    main.insertBefore(mobStatusRow, main.firstChild);
+  }
+
+  // Mobile filter controls (ALL / PERPS / SPOT / LONG / SHORT / $100K+)
+  if (main && !document.getElementById('mobFilterRow')) {
+    const mobFilterRow = document.createElement('div');
+    mobFilterRow.id = 'mobFilterRow';
+    mobFilterRow.style.cssText = 'display:flex;flex-shrink:0;gap:6px;padding:6px 10px;overflow-x:auto;background:var(--bg1);border-bottom:1px solid var(--border);-webkit-overflow-scrolling:touch;';
+    mobFilterRow.innerHTML = `
+      <button class="mob-filter-btn active" onclick="mobSetFilter('all','all')">ALL</button>
+      <button class="mob-filter-btn" onclick="mobSetFilter('perps','all')">▲ PERPS</button>
+      <button class="mob-filter-btn" onclick="mobSetFilter('spot','all')">🔮 SPOT</button>
+      <button class="mob-filter-btn" onclick="mobSetFilter('all','long')">▲ LONG</button>
+      <button class="mob-filter-btn" onclick="mobSetFilter('all','short')">▼ SHORT</button>
+      <button class="mob-filter-btn" onclick="mobSetFilter('all','big')">$100K+</button>
+    `;
+    const statusRow = document.getElementById('mobStatusRow');
+    if (statusRow) main.insertBefore(mobFilterRow, statusRow.nextSibling);
+    else main.insertBefore(mobFilterRow, main.firstChild);
+  }
+
+  // Trigger feed tab (shows mobileCards with flex:1)
+  mobTab('feed');
+  // Periodic mobile status update
+  setInterval(() => {
+    const ws = document.getElementById('mob-ws-st');
+    const mkts = document.getElementById('mob-mkts');
+    const tot = document.getElementById('mob-tot');
+    const mega = document.getElementById('mob-mega');
+    if (ws) { ws.textContent = wsReady ? '● Live' : '⚠ Reconnecting'; ws.style.color = wsReady ? 'var(--g)' : 'var(--r)'; }
+    if (mkts) mkts.textContent = subscribedCoins.size;
+    if (tot) tot.textContent = totalTradesReceived.toLocaleString();
+    if (mega) mega.textContent = megaTradesCount;
+    // If on stats tab, re-render
+    if (mobCurrentTab === 'stats') renderMobileStats();
+  }, 3000);
+}
+
+// Handle resize
+window.addEventListener('resize', () => {
+  if (isMobile() && document.getElementById('mobNav').style.display === 'none') {
+    initMobileLayout();
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+updateClock();
+setInterval(updateClock, 1000);
+loadCoins(); // โหลด coins → connectWebSocket + scheduleRestFallback
+// Mobile init after short delay (let DOM settle)
+setTimeout(initMobileLayout, 200);
+
+</script>
+</body>
+</html>
