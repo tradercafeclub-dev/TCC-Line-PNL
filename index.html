@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>🐋 TCC Whale Tracker — Live v16</title>
+<title>TCC Whale Tracker — Live v16</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐋</text></svg>"/>
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐋</text></svg>"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -529,220 +529,6 @@ td{padding:5px 10px;font-family:var(--mono);font-size:11px;vertical-align:middle
 }
 .fc-coin-ai-btn:hover { background: rgba(41,182,246,.18); }
 
-/* ══════════════════════════════════════════════════════
-   MASTER SIGNAL BOX — v18
-══════════════════════════════════════════════════════ */
-.msb-wrap {
-  background: var(--bg1);
-  border: 1px solid var(--b2);
-  border-radius: 12px;
-  overflow: hidden;
-  flex-shrink: 0;
-  position: relative;
-}
-.msb-wrap::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(41,182,246,.04) 0%, rgba(206,147,216,.03) 50%, rgba(0,230,118,.03) 100%);
-  pointer-events: none;
-}
-.msb-header {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 16px; border-bottom: 1px solid var(--b2);
-  background: rgba(41,182,246,.06);
-  flex-wrap: wrap;
-}
-.msb-title {
-  font-family: var(--mono); font-size: 12px; font-weight: 700;
-  color: var(--b); letter-spacing: .8px;
-}
-.msb-subtitle {
-  font-family: var(--mono); font-size: 9px; color: var(--t2);
-}
-.msb-src-pills {
-  display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap;
-}
-.msb-src-pill {
-  font-family: var(--mono); font-size: 8px; font-weight: 700;
-  padding: 2px 7px; border-radius: 10px; letter-spacing: .3px;
-}
-.msb-src-pill.news  { background: rgba(255,61,87,.12);  color: var(--r); border: 1px solid rgba(255,61,87,.3); }
-.msb-src-pill.sheet { background: rgba(255,213,79,.1);   color: var(--y); border: 1px solid rgba(255,213,79,.3); }
-.msb-src-pill.live  { background: rgba(0,230,118,.1);   color: var(--g); border: 1px solid rgba(0,230,118,.3); }
-.msb-src-pill.ai    { background: rgba(206,147,216,.1); color: var(--p); border: 1px solid rgba(206,147,216,.3); }
-
-/* — VERDICT row — */
-.msb-verdict-row {
-  display: flex; align-items: center; gap: 0;
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap; gap: 12px;
-}
-.msb-direction-badge {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 18px; border-radius: 8px;
-  font-family: var(--mono); font-size: 16px; font-weight: 700;
-  border: 1px solid; flex-shrink: 0;
-  transition: all .3s;
-}
-.msb-direction-badge.bull {
-  background: rgba(0,230,118,.12); color: var(--g);
-  border-color: rgba(0,230,118,.4);
-  text-shadow: 0 0 12px rgba(0,230,118,.4);
-}
-.msb-direction-badge.bear {
-  background: rgba(255,61,87,.1); color: var(--r);
-  border-color: rgba(255,61,87,.4);
-}
-.msb-direction-badge.neutral {
-  background: rgba(41,182,246,.1); color: var(--b);
-  border-color: rgba(41,182,246,.4);
-}
-.msb-direction-badge.loading {
-  background: var(--bg2); color: var(--t2);
-  border-color: var(--border);
-  animation: pulse-border 1.5s ease infinite;
-}
-@keyframes pulse-border {
-  0%,100% { border-color: var(--border); }
-  50% { border-color: var(--b2); }
-}
-
-/* — CONFIDENCE METERS — */
-.msb-confidence-col {
-  display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 240px;
-}
-.msb-conf-row {
-  display: flex; align-items: center; gap: 8px;
-}
-.msb-conf-label {
-  font-family: var(--mono); font-size: 9px; color: var(--t2);
-  white-space: nowrap; width: 90px; flex-shrink: 0;
-  text-overflow: ellipsis; overflow: hidden;
-}
-.msb-conf-track {
-  flex: 1; height: 7px; background: var(--bg3);
-  border-radius: 4px; overflow: hidden; position: relative;
-}
-.msb-conf-fill {
-  height: 100%; border-radius: 4px;
-  transition: width 1s cubic-bezier(.22,.61,.36,1);
-  position: relative;
-}
-.msb-conf-fill::after {
-  content: '';
-  position: absolute; top: 0; right: 0; bottom: 0; width: 20px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.2));
-}
-.msb-conf-pct {
-  font-family: var(--mono); font-size: 11px; font-weight: 700;
-  min-width: 32px; text-align: right; flex-shrink: 0;
-}
-
-/* — FINAL CONFIDENCE RING — */
-.msb-score-ring {
-  width: 72px; height: 72px;
-  flex-shrink: 0; position: relative;
-  display: flex; align-items: center; justify-content: center;
-}
-.msb-ring-svg {
-  position: absolute; inset: 0;
-  transform: rotate(-90deg);
-}
-.msb-ring-bg { fill: none; stroke: var(--bg3); stroke-width: 6; }
-.msb-ring-fill {
-  fill: none; stroke-width: 6; stroke-linecap: round;
-  stroke-dasharray: 201; stroke-dashoffset: 201;
-  transition: stroke-dashoffset 1.2s cubic-bezier(.22,.61,.36,1),
-              stroke .3s;
-}
-.msb-ring-score {
-  font-family: var(--mono); font-size: 14px; font-weight: 700;
-  position: relative; z-index: 1;
-}
-.msb-ring-label {
-  font-family: var(--mono); font-size: 7px; color: var(--t2);
-  text-align: center; margin-top: -2px; position: relative; z-index: 1;
-}
-.msb-ring-inner {
-  display: flex; flex-direction: column; align-items: center;
-  justify-content: center;
-}
-
-/* — SIGNAL ROWS — */
-.msb-signals-row {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 1px; background: var(--border);
-  border-top: 1px solid var(--border);
-}
-.msb-signal-col {
-  background: var(--bg1);
-  padding: 12px 14px;
-  display: flex; flex-direction: column; gap: 6px;
-}
-.msb-signal-col:hover { background: var(--bg2); transition: background .15s; }
-.msb-signal-col-title {
-  display: flex; align-items: center; gap: 6px;
-  font-family: var(--mono); font-size: 9px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .8px; color: var(--t2);
-}
-.msb-signal-result {
-  font-family: var(--sans); font-size: 11px; color: var(--t1);
-  line-height: 1.65; white-space: pre-wrap;
-  max-height: 120px; overflow-y: auto;
-}
-.msb-signal-result.loading {
-  color: var(--t2); font-style: italic;
-  font-family: var(--mono); font-size: 10px;
-}
-.msb-signal-direction {
-  font-family: var(--mono); font-size: 11px; font-weight: 700;
-  padding: 2px 9px; border-radius: 4px; display: inline-block;
-  align-self: flex-start;
-}
-.msb-signal-direction.bull { background: var(--gbg); color: var(--g); border: 1px solid rgba(0,230,118,.3); }
-.msb-signal-direction.bear { background: var(--rbg); color: var(--r); border: 1px solid rgba(255,61,87,.3); }
-.msb-signal-direction.neutral { background: var(--bbg); color: var(--b); border: 1px solid rgba(41,182,246,.3); }
-.msb-signal-direction.wait { background: var(--ybg); color: var(--y); border: 1px solid rgba(255,213,79,.3); }
-
-/* — ACTION BAR — */
-.msb-action-row {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  padding: 10px 14px; border-top: 1px solid var(--border);
-  background: var(--bg);
-}
-.msb-run-btn {
-  display: flex; align-items: center; gap: 6px;
-  padding: 7px 18px; border-radius: 7px;
-  font-family: var(--mono); font-size: 11px; font-weight: 700;
-  cursor: pointer; transition: all .15s; border: 1px solid;
-  white-space: nowrap;
-}
-.msb-run-btn.primary {
-  background: rgba(41,182,246,.12); color: var(--b);
-  border-color: rgba(41,182,246,.4);
-}
-.msb-run-btn.primary:hover { background: rgba(41,182,246,.22); }
-.msb-run-btn:disabled { opacity: .5; cursor: not-allowed; }
-.msb-timestamp {
-  font-family: var(--mono); font-size: 9px; color: var(--t2);
-  margin-left: auto;
-}
-.msb-spinner {
-  width: 12px; height: 12px;
-  border: 2px solid rgba(41,182,246,.3);
-  border-top-color: var(--b);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-  display: inline-block;
-}
-@media(max-width:800px) {
-  .msb-signals-row { grid-template-columns: 1fr; }
-  .msb-confidence-col { min-width: 180px; }
-  .msb-score-ring { width: 60px; height: 60px; }
-}
-
 /* ── News Panel ── */
 .fc-news-panel { background: var(--bg1); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; flex-shrink: 0; }
 .fc-news-event-row { display: flex; gap: 8px; align-items: center; padding: 5px 0; border-bottom: 1px solid rgba(26,40,64,.4); }
@@ -1088,181 +874,69 @@ td{padding:5px 10px;font-family:var(--mono);font-size:11px;vertical-align:middle
       <span id="fcInfoSrc" style="color:var(--t1);">Live WebSocket/REST (Hyperliquid) + Google Sheet</span>
       <span id="fcInfoLiveCnt" style="color:var(--g);"></span>
       <span id="fcInfoSheetCnt" style="color:var(--b);"></span>
-      <!-- MSB mirror IDs (hidden) -->
-      <span id="fcInfoLiveCnt2" style="display:none;"></span>
-      <span id="fcInfoSheetCnt2" style="display:none;"></span>
       <span id="fcInfoRange" style="color:var(--t2);"></span>
       <span id="fcInfoCount" style="color:var(--y);font-weight:700;"></span>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════
-      📰 ECONOMIC NEWS PANEL (hidden data source — still used for AI prompt)
-    ══════════════════════════════════════════════════════ -->
-    <div class="fc-news-panel" id="fcNewsPanel" style="display:none;">
-      <!-- Hidden elements still needed for data binding -->
-      <span id="fcNewsStatusBadge"></span>
-      <div id="fcNewsEventList" style="display:none;"></div>
-      <div id="fcNewsAiBox" style="display:none;">
-        <div id="fcNewsAiLoad" style="display:none;"></div>
-        <div id="fcNewsAiResult" style="display:none;"></div>
-        <!-- Bug fix: confidence bar hidden here — MASTER SIGNAL BOX manages display -->
-        <div id="fcNewsConfBar" style="display:none;width:0%;"></div>
-        <div id="fcNewsConfPct" style="display:none;">0%</div>
-        <div id="fcNewsDirectionBadge" style="display:none;"></div>
-        <span id="fcNewsAiTime"></span>
-      </div>
-      <textarea id="fcNewsText" style="display:none;" rows="1"></textarea>
-      <input type="checkbox" id="fcNewsEnabled" checked style="display:none;">
-      <button id="fcNewsFetchBtn" onclick="fcFetchEcoCalendar(false)" style="display:none;"></button>
-      <button id="fcNewsAnalyzeBtn" onclick="fcManualAnalyzeNews()" style="display:none;"></button>
-    </div>
-
-    <!-- Hidden legacy AI result containers (kept for JS compatibility) -->
-    <div id="fc6HAiBox"  style="display:none;"><div id="fc6HAiLoad"  style="display:none;"></div><div id="fc6HAiResult"  style="display:none;"></div><span id="fc6HAiTime"></span></div>
-    <div id="fc1HAiCard" style="display:none;"><div id="fc1HAiLoad"  style="display:none;"></div><div id="fc1HAiResult"  style="display:none;"></div><span id="fc1HAiTime"></span></div>
-    <div id="fcCoinAiCard" style="display:none;"><span id="fcCoinAiLabel"></span><div id="fcCoinAiLoad" style="display:none;"></div><div id="fcCoinAiResult" style="display:none;"></div><span id="fcCoinAiTime"></span></div>
-
-    <!-- ══════════════════════════════════════════════════════
-      🎯 MASTER SIGNAL BOX — v18 (รวม 3 แหล่งข้อมูล)
-    ══════════════════════════════════════════════════════ -->
-    <div class="msb-wrap" id="msbWrap">
-
-      <!-- Header -->
-      <div class="msb-header">
-        <div>
-          <div class="msb-title">🎯 MASTER SIGNAL</div>
-          <div class="msb-subtitle" id="msbSubtitle">กด วิเคราะห์ เพื่อรับสัญญาณรวม 3 แหล่งข้อมูล</div>
-        </div>
-        <div class="msb-src-pills">
-          <span class="msb-src-pill news">📰 ข่าวเศรษฐกิจ</span>
-          <span class="msb-src-pill sheet">📋 Google Sheet</span>
-          <span class="msb-src-pill live">⚡ Hyperliquid Live</span>
-          <span class="msb-src-pill ai">🤖 AI Synthesis</span>
+    <!-- 📰 ECONOMIC NEWS PANEL (v16 — Auto-fetch + AI Auto-analyze + Confidence Bar) -->
+    <div class="fc-news-panel" id="fcNewsPanel">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--r);">📰 ข่าวเศรษฐกิจสหรัฐ (High Impact)</div>
+        <span id="fcNewsStatusBadge" style="font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:10px;background:rgba(255,61,87,.1);color:var(--r);border:1px solid rgba(255,61,87,.25);">⏳ กำลังโหลด...</span>
+        <div style="display:flex;gap:6px;margin-left:auto;align-items:center;flex-wrap:wrap;">
+          <button onclick="fcFetchEcoCalendar(false)" id="fcNewsFetchBtn"
+            style="background:var(--bg2);border:1px solid var(--border);color:var(--t1);font-family:var(--mono);font-size:9px;padding:3px 10px;border-radius:4px;cursor:pointer;">
+            🔄 รีเฟรช
+          </button>
+          <button onclick="fcManualAnalyzeNews()" id="fcNewsAnalyzeBtn"
+            style="background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.25);color:var(--g);font-family:var(--mono);font-size:9px;padding:3px 10px;border-radius:4px;cursor:pointer;">
+            🤖 วิเคราะห์ AI
+          </button>
+          <label style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;color:var(--t1);cursor:pointer;">
+            <input type="checkbox" id="fcNewsEnabled" checked style="accent-color:var(--r);width:13px;height:13px;">
+            <span>รวมข่าวใน AI Prompt</span>
+          </label>
         </div>
       </div>
 
-      <!-- Verdict + Confidence -->
-      <div class="msb-verdict-row">
+      <!-- Event chips (auto-populated) -->
+      <div id="fcNewsEventList" style="margin-bottom:8px;display:none;"></div>
 
-        <!-- Direction Badge -->
-        <div class="msb-direction-badge loading" id="msbDirectionBadge">
-          <span id="msbDirectionIcon">⏳</span>
-          <span id="msbDirectionText">รอวิเคราะห์</span>
-        </div>
-
-        <!-- 3-source Confidence Bars -->
-        <div class="msb-confidence-col">
-          <div class="msb-conf-row">
-            <span class="msb-conf-label">📰 News</span>
-            <div class="msb-conf-track">
-              <div class="msb-conf-fill" id="msbConfNews"
-                style="width:0%;background:linear-gradient(90deg,#b71c37,#ff3d57);"></div>
+      <!-- AI Auto-Analysis Result Box (v16) -->
+      <div id="fcNewsAiBox" style="display:none;margin:10px 0 8px;border:1px solid rgba(0,230,118,.2);border-radius:8px;background:rgba(0,230,118,.04);padding:12px 14px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+          <span style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--g);">✨ AI วิเคราะห์ข่าวเศรษฐกิจอัตโนมัติ</span>
+          <span id="fcNewsAiTime" style="font-family:var(--mono);font-size:9px;color:var(--t2);margin-left:auto;"></span>
+          <!-- ความมั่นใจ % bar -->
+          <div style="display:flex;align-items:center;gap:6px;width:100%;margin-top:6px;">
+            <span style="font-family:var(--mono);font-size:9px;color:var(--t2);white-space:nowrap;">ความมั่นใจ:</span>
+            <div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;position:relative;">
+              <div id="fcNewsConfBar" style="height:100%;width:0%;background:linear-gradient(90deg,#00a152,#00e676);border-radius:4px;transition:width 1s ease;"></div>
             </div>
-            <span class="msb-conf-pct" id="msbConfNewsPct" style="color:var(--t2);">—</span>
+            <span id="fcNewsConfPct" style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--g);min-width:36px;text-align:right;">0%</span>
           </div>
-          <div class="msb-conf-row">
-            <span class="msb-conf-label">📋 Sheet Data</span>
-            <div class="msb-conf-track">
-              <div class="msb-conf-fill" id="msbConfSheet"
-                style="width:0%;background:linear-gradient(90deg,#e65100,#ffd54f);"></div>
-            </div>
-            <span class="msb-conf-pct" id="msbConfSheetPct" style="color:var(--t2);">—</span>
-          </div>
-          <div class="msb-conf-row">
-            <span class="msb-conf-label">⚡ Live Flow</span>
-            <div class="msb-conf-track">
-              <div class="msb-conf-fill" id="msbConfLive"
-                style="width:0%;background:linear-gradient(90deg,#00a152,#00e676);"></div>
-            </div>
-            <span class="msb-conf-pct" id="msbConfLivePct" style="color:var(--t2);">—</span>
-          </div>
+          <!-- ทิศทางตลาด badge -->
+          <div id="fcNewsDirectionBadge" style="display:none;padding:4px 14px;border-radius:20px;font-family:var(--mono);font-size:11px;font-weight:700;margin-top:2px;"></div>
         </div>
-
-        <!-- Final Score Ring -->
-        <div class="msb-score-ring" id="msbScoreRing">
-          <svg class="msb-ring-svg" viewBox="0 0 72 72">
-            <circle class="msb-ring-bg" cx="36" cy="36" r="32"/>
-            <circle class="msb-ring-fill" id="msbRingFill" cx="36" cy="36" r="32"
-              stroke="var(--t2)"/>
-          </svg>
-          <div class="msb-ring-inner">
-            <div class="msb-ring-score" id="msbRingScore" style="color:var(--t2);">—</div>
-            <div class="msb-ring-label">TOTAL</div>
-          </div>
-        </div>
-
+        <div id="fcNewsAiLoad" style="display:none;font-family:var(--mono);font-size:11px;color:var(--t2);"><span class="spinner"></span> AI กำลังวิเคราะห์ข่าว...</div>
+        <div id="fcNewsAiResult" style="font-family:var(--sans);font-size:11px;line-height:1.75;color:var(--t1);white-space:pre-wrap;"></div>
       </div>
 
-      <!-- 3-Column Signal Detail -->
-      <div class="msb-signals-row">
-
-        <!-- Col 1: Economic News -->
-        <div class="msb-signal-col">
-          <div class="msb-signal-col-title" style="color:var(--r);">
-            <span>📰</span> ข่าวเศรษฐกิจ
-            <span id="msbNewsStatus" style="margin-left:auto;font-family:var(--mono);font-size:8px;color:var(--t2);font-weight:400;">⏳ กำลังโหลด...</span>
-          </div>
-          <!-- Live news events mini-display -->
-          <div id="msbNewsEvents" style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px;min-height:16px;"></div>
-          <div id="msbNewsDir" class="msb-signal-direction wait" style="display:none;">—</div>
-          <div id="msbNewsResult" class="msb-signal-result loading">รอดึงข้อมูลข่าว...</div>
-        </div>
-
-        <!-- Col 2: Sheet / Analytics -->
-        <div class="msb-signal-col">
-          <div class="msb-signal-col-title" style="color:var(--y);">
-            <span>📋</span> Google Sheet
-            <span id="msbSheetStatus" style="margin-left:auto;font-family:var(--mono);font-size:8px;color:var(--t2);font-weight:400;">
-              <span id="fcInfoSheetCnt2"></span>
-            </span>
-          </div>
-          <div id="msbSheetDir" class="msb-signal-direction wait" style="display:none;">—</div>
-          <div id="msbSheetResult" class="msb-signal-result loading">กด วิเคราะห์ เพื่อดูข้อมูล Sheet...</div>
-        </div>
-
-        <!-- Col 3: Live Hyperliquid -->
-        <div class="msb-signal-col">
-          <div class="msb-signal-col-title" style="color:var(--g);">
-            <span>⚡</span> Live Hyperliquid
-            <span id="msbLiveStatus" style="margin-left:auto;font-family:var(--mono);font-size:8px;color:var(--g);font-weight:400;">
-              <span id="fcInfoLiveCnt2"></span>
-            </span>
-          </div>
-          <div id="msbLiveDir" class="msb-signal-direction wait" style="display:none;">—</div>
-          <div id="msbLiveResult" class="msb-signal-result loading">รอข้อมูล Live Feed...</div>
-        </div>
-
-      </div>
-
-      <!-- AI Final Synthesis -->
-      <div id="msbSynthesisRow" style="display:none;padding:12px 14px;border-top:1px solid var(--border);background:rgba(206,147,216,.04);">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-          <span style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--p);">🤖 AI Synthesis — สรุปรวม 3 แหล่งข้อมูล</span>
-          <span id="msbSynthTime" style="font-family:var(--mono);font-size:9px;color:var(--t2);margin-left:auto;"></span>
-        </div>
-        <div id="msbSynthLoad" style="display:none;font-family:var(--mono);font-size:11px;color:var(--t2);"><span class="spinner"></span> AI กำลังสังเคราะห์ข้อมูล...</div>
-        <div id="msbSynthResult" class="an-ai-result" style="font-size:11px;line-height:1.75;"></div>
-      </div>
-
-      <!-- Action Bar -->
-      <div class="msb-action-row">
-        <button class="msb-run-btn primary" id="msbRunBtn" onclick="msbRunAnalysis()">
-          🎯 วิเคราะห์ Master Signal
-        </button>
-        <button onclick="fcFetchEcoCalendar(false)"
-          style="background:var(--bg2);border:1px solid var(--border);color:var(--t1);font-family:var(--mono);font-size:10px;padding:6px 12px;border-radius:6px;cursor:pointer;">
-          🔄 รีเฟรชข่าว
-        </button>
-        <label style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--t1);cursor:pointer;">
-          <input type="checkbox" id="fcNewsEnabled2" checked style="accent-color:var(--p);width:12px;height:12px;"
-            onchange="document.getElementById('fcNewsEnabled').checked=this.checked">
-          <span>รวมข่าวใน Prompt</span>
-        </label>
-        <span class="msb-timestamp" id="msbTimestamp"></span>
+      <!-- Manual text input (collapsed by default) -->
+      <details style="margin-top:4px;">
+        <summary style="font-family:var(--mono);font-size:9px;color:var(--t2);cursor:pointer;padding:2px 0;">✏️ แก้ไขข้อความข่าวด้วยตนเอง</summary>
+        <textarea id="fcNewsText" rows="3"
+          style="width:100%;margin-top:6px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px;font-family:var(--mono);font-size:10px;color:var(--t0);resize:vertical;outline:none;line-height:1.6;"
+          placeholder="วางข่าวเศรษฐกิจตัวแดงที่นี่...&#10;🔴 CPI MoM: จริง 0.4% | คาด 0.3% | ก่อน 0.2% (Hawkish)&#10;🔴 NFP: จริง 142K | คาด 190K (ต่ำกว่าคาด = Dovish)"></textarea>
+      </details>
+      <div style="margin-top:5px;font-family:var(--mono);font-size:9px;color:var(--t2);display:flex;gap:12px;flex-wrap:wrap;">
+        <span>💡 แหล่งข้อมูล: ForexFactory (auto) ·</span>
+        <a href="https://www.investing.com/economic-calendar/" target="_blank" style="color:var(--b);text-decoration:none;">Investing.com</a>
+        <a href="https://www.forexfactory.com/calendar" target="_blank" style="color:var(--b);text-decoration:none;">ForexFactory</a>
       </div>
     </div>
 
-    <!-- OVERVIEW CARD — Bucket Grid -->
+    <!-- OVERVIEW CARD -->
     <div class="an-card" id="fcCard6H" style="flex-shrink:0;border:1px solid rgba(41,182,246,.2);background:linear-gradient(135deg,var(--bg1) 0%,rgba(41,182,246,.03) 100%);">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
         <div>
@@ -1271,8 +945,17 @@ td{padding:5px 10px;font-family:var(--mono);font-size:11px;vertical-align:middle
         </div>
         <div id="fc6HBadge" style="display:none;padding:6px 14px;border-radius:20px;font-family:var(--mono);font-size:12px;font-weight:700;"></div>
       </div>
-      <div id="fc6HGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">
+      <div id="fc6HGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px;">
         <div style="text-align:center;padding:30px;color:var(--t2);font-family:var(--mono);font-size:11px;grid-column:1/-1;">กด "วิเคราะห์" เพื่อโหลดข้อมูล</div>
+      </div>
+      <div id="fc6HAiBox" style="display:none;">
+        <div style="height:1px;background:var(--border);margin:10px 0;"></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--t2);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+          <span>✨ AI Analysis</span>
+          <span id="fc6HAiTime" style="margin-left:auto;"></span>
+        </div>
+        <div id="fc6HAiLoad" style="display:none;font-family:var(--mono);font-size:11px;color:var(--t2);"><span class="spinner"></span> กำลังวิเคราะห์...</div>
+        <div class="an-ai-result" id="fc6HAiResult" style="font-size:11px;line-height:1.7;"></div>
       </div>
     </div>
 
@@ -1285,10 +968,34 @@ td{padding:5px 10px;font-family:var(--mono);font-size:11px;vertical-align:middle
       <div id="fcPerCoinGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;"></div>
     </div>
 
+    <!-- PER-COIN AI RESULT -->
+    <div class="an-card" id="fcCoinAiCard" style="flex-shrink:0;display:none;border:1px solid rgba(206,147,216,.25);background:linear-gradient(135deg,var(--bg1) 0%,rgba(206,147,216,.03) 100%);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;">
+        <div class="an-card-title" style="margin:0;">✨ AI วิเคราะห์เฉพาะเหรียญ — <span id="fcCoinAiLabel" style="color:var(--p);"></span></div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span id="fcCoinAiTime" style="font-family:var(--mono);font-size:9px;color:var(--t2);"></span>
+          <button onclick="document.getElementById('fcCoinAiCard').style.display='none'"
+            style="background:none;border:1px solid var(--border);color:var(--t2);font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:4px;cursor:pointer;">✕ ปิด</button>
+        </div>
+      </div>
+      <div id="fcCoinAiLoad" style="display:none;font-family:var(--mono);font-size:11px;color:var(--t2);"><span class="spinner"></span> กำลังวิเคราะห์...</div>
+      <div class="an-ai-result" id="fcCoinAiResult" style="font-size:11px;line-height:1.7;"></div>
+    </div>
+
     <!-- 1H MICRO FORECAST GRID -->
     <div style="font-family:var(--mono);font-size:10px;color:var(--t2);flex-shrink:0;" id="fc1HLabel">⏱ รายชั่วโมง — 1H Micro Forecast</div>
     <div id="fc1HGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;flex-shrink:0;">
       <div style="text-align:center;padding:20px;color:var(--t2);font-family:var(--mono);font-size:11px;grid-column:1/-1;background:var(--bg1);border-radius:10px;border:1px solid var(--border);">กด "วิเคราะห์" เพื่อโหลดข้อมูล</div>
+    </div>
+
+    <!-- 1H AI Analysis -->
+    <div class="an-card" id="fc1HAiCard" style="flex-shrink:0;display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div class="an-card-title" style="margin:0;">✨ AI Analysis (1H) — ชั่วโมงถัดไป</div>
+        <span id="fc1HAiTime" style="font-family:var(--mono);font-size:9px;color:var(--t2);"></span>
+      </div>
+      <div id="fc1HAiLoad" style="display:none;font-family:var(--mono);font-size:11px;color:var(--t2);"><span class="spinner"></span> กำลังวิเคราะห์รายชั่วโมง...</div>
+      <div class="an-ai-result" id="fc1HAiResult" style="font-size:11px;line-height:1.7;"></div>
     </div>
 
   </div><!-- end #forecastPanel -->
@@ -4122,437 +3829,6 @@ setInterval(() => {
     fcFetchEcoCalendar(false); // refresh data แต่ไม่ re-analyze (ประหยัด API)
   }
 }, 15 * 60 * 1000);
-
-// ════════════════════════════════════════════════════════════════
-// MASTER SIGNAL BOX — v18
-// รวม 3 แหล่งข้อมูล: ข่าวเศรษฐกิจ + Google Sheet + Live Hyperliquid
-// ════════════════════════════════════════════════════════════════
-
-// State
-window._msbState = {
-  newsDir: null, newsConf: 0, newsText: '',
-  sheetDir: null, sheetConf: 0, sheetSummary: '',
-  liveDir: null,  liveConf: 0,  liveSummary: '',
-  running: false
-};
-
-// Helper: sync live/sheet count labels
-setInterval(() => {
-  const c2l = document.getElementById('fcInfoLiveCnt2');
-  const c2s = document.getElementById('fcInfoSheetCnt2');
-  const c1l = document.getElementById('fcInfoLiveCnt');
-  const c1s = document.getElementById('fcInfoSheetCnt');
-  if (c2l && c1l) c2l.textContent = c1l.textContent;
-  if (c2s && c1s) c2s.textContent = c1s.textContent;
-  // also sync checkbox
-  const chk2 = document.getElementById('fcNewsEnabled2');
-  const chk1 = document.getElementById('fcNewsEnabled');
-  if (chk2 && chk1 && chk2.checked !== chk1.checked) chk1.checked = chk2.checked;
-}, 2000);
-
-// — Update Confidence Ring —
-function msbUpdateRing(score) {
-  const fill  = document.getElementById('msbRingFill');
-  const label = document.getElementById('msbRingScore');
-  if (!fill || !label) return;
-  const r = 32;
-  const circ = 2 * Math.PI * r; // ≈ 201
-  const offset = circ - (score / 100) * circ;
-  fill.style.strokeDashoffset = offset;
-  // color
-  const clr = score >= 70 ? '#00e676' : score >= 40 ? '#ffd54f' : '#ff3d57';
-  fill.style.stroke = clr;
-  label.style.color = clr;
-  label.textContent = score + '%';
-}
-
-// — Set Direction Badge —
-function msbSetDirection(dir) {
-  const badge = document.getElementById('msbDirectionBadge');
-  const icon  = document.getElementById('msbDirectionIcon');
-  const text  = document.getElementById('msbDirectionText');
-  if (!badge) return;
-  badge.className = 'msb-direction-badge';
-  if (dir === 'BULLISH') {
-    badge.classList.add('bull');
-    if (icon) icon.textContent = '▲';
-    if (text) text.textContent = 'BULLISH';
-  } else if (dir === 'BEARISH') {
-    badge.classList.add('bear');
-    if (icon) icon.textContent = '▼';
-    if (text) text.textContent = 'BEARISH';
-  } else if (dir === 'NEUTRAL') {
-    badge.classList.add('neutral');
-    if (icon) icon.textContent = '●';
-    if (text) text.textContent = 'NEUTRAL';
-  } else {
-    badge.classList.add('loading');
-    if (icon) icon.textContent = '⏳';
-    if (text) text.textContent = 'กำลังวิเคราะห์...';
-  }
-}
-
-// — Set individual signal bar —
-function msbSetBar(id, pctId, conf, colorClass) {
-  const bar = document.getElementById(id);
-  const pct = document.getElementById(pctId);
-  if (!bar) return;
-  setTimeout(() => {
-    bar.style.width = conf + '%';
-    const clr = conf >= 70
-      ? 'linear-gradient(90deg,#00a152,#00e676)'
-      : conf >= 40
-        ? 'linear-gradient(90deg,#e65100,#ffd54f)'
-        : 'linear-gradient(90deg,#b71c37,#ff3d57)';
-    bar.style.background = clr;
-    if (pct) {
-      pct.textContent = conf + '%';
-      pct.style.color = conf >= 70 ? 'var(--g)' : conf >= 40 ? 'var(--y)' : 'var(--r)';
-    }
-  }, 100);
-}
-
-// — Set column direction badge —
-function msbSetColDir(id, dir) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  if (!dir) { el.style.display = 'none'; return; }
-  el.style.display = 'inline-block';
-  el.className = 'msb-signal-direction';
-  el.classList.add(dir === 'BULLISH' ? 'bull' : dir === 'BEARISH' ? 'bear' : dir === 'NEUTRAL' ? 'neutral' : 'wait');
-  el.textContent = dir === 'BULLISH' ? '▲ BULLISH' : dir === 'BEARISH' ? '▼ BEARISH' : dir === 'NEUTRAL' ? '● NEUTRAL' : '— รอผล';
-}
-
-// ── Step 1: Analyze News ──
-async function msbAnalyzeNews() {
-  const st = window._msbState;
-  const newsText = (document.getElementById('fcNewsText')?.value || '').trim();
-
-  // Update UI
-  document.getElementById('msbNewsResult').className = 'msb-signal-result loading';
-  document.getElementById('msbNewsResult').textContent = '⏳ AI กำลังวิเคราะห์ข่าว...';
-  msbSetColDir('msbNewsDir', null);
-
-  if (!newsText) {
-    document.getElementById('msbNewsResult').textContent = '⚠️ ยังไม่มีข้อมูลข่าว — ระบบจะข้ามขั้นตอนนี้';
-    st.newsDir = 'NEUTRAL'; st.newsConf = 30; st.newsText = '';
-    msbSetBar('msbConfNews', 'msbConfNewsPct', 30, 'r');
-    msbSetColDir('msbNewsDir', 'NEUTRAL');
-    return;
-  }
-
-  const prompt = `คุณคือผู้เชี่ยวชาญ Macro Economics & Crypto Market วิเคราะห์ผลกระทบจากข่าวเศรษฐกิจสหรัฐ (High Impact) ต่อตลาด Crypto
-
-ข่าวเศรษฐกิจล่าสุด:
-${newsText}
-
-ตอบในรูปแบบนี้เท่านั้น (ภาษาไทย ไม่เกิน 120 คำ):
-
-DIRECTION: [BULLISH/BEARISH/NEUTRAL]
-CONFIDENCE: [0-100]
-
-สรุปผลข่าว: (1-2 ประโยค — ภาพรวม Hawkish/Dovish)
-ผลต่อ Crypto: (1-2 ประโยค — Risk-On หรือ Risk-Off และเหตุผล)
-ความเสี่ยง: (1 ประโยค)
-
-*ต้องระบุ DIRECTION และ CONFIDENCE ก่อนเสมอ*`;
-
-  try {
-    const text = await callAIProxy(prompt, 600);
-    const dirM  = text.match(/DIRECTION[:\s]*([A-Z]+)/i);
-    const confM = text.match(/CONFIDENCE[:\s]*(\d+)/i);
-    st.newsDir  = dirM  ? dirM[1].toUpperCase()  : 'NEUTRAL';
-    st.newsConf = confM ? Math.min(100, parseInt(confM[1])) : 50;
-    st.newsText = text;
-
-    // Also update legacy elements (for backwards compatibility)
-    const legacyResult = document.getElementById('fcNewsAiResult');
-    if (legacyResult) legacyResult.textContent = text;
-    const legacyBar = document.getElementById('fcNewsConfBar');
-    if (legacyBar) legacyBar.style.width = st.newsConf + '%';
-    const legacyPct = document.getElementById('fcNewsConfPct');
-    if (legacyPct) legacyPct.textContent = st.newsConf + '%';
-
-    // Render in MSB
-    const resultEl = document.getElementById('msbNewsResult');
-    resultEl.className = 'msb-signal-result';
-    // Strip DIRECTION/CONFIDENCE lines for cleaner display
-    const cleanText = text.replace(/^DIRECTION[^\n]*\n?/im,'').replace(/^CONFIDENCE[^\n]*\n?/im,'').trim();
-    resultEl.textContent = cleanText;
-    msbSetColDir('msbNewsDir', st.newsDir);
-    msbSetBar('msbConfNews', 'msbConfNewsPct', st.newsConf, '');
-
-    // Render mini news events in col header
-    const evList = document.getElementById('msbNewsEvents');
-    const rawEvents = document.getElementById('fcNewsEventList');
-    if (evList && rawEvents && rawEvents.children.length > 0) {
-      evList.innerHTML = '';
-      Array.from(rawEvents.children).slice(0,4).forEach(ev => {
-        const mini = document.createElement('div');
-        mini.style.cssText = 'font-family:var(--mono);font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(255,61,87,.12);color:var(--r);border:1px solid rgba(255,61,87,.25);white-space:nowrap;';
-        mini.textContent = '🔴 ' + (ev.querySelector('[style*="color:var(--t0)"]')?.textContent || '').slice(0,20);
-        evList.appendChild(mini);
-      });
-    }
-  } catch(e) {
-    st.newsDir = 'NEUTRAL'; st.newsConf = 20;
-    document.getElementById('msbNewsResult').textContent = '❌ ' + e.message;
-    msbSetBar('msbConfNews', 'msbConfNewsPct', 20, '');
-  }
-}
-
-// ── Step 2: Analyze Sheet Data ──
-async function msbAnalyzeSheet(data, buckets) {
-  const st = window._msbState;
-  const resultEl = document.getElementById('msbSheetResult');
-  resultEl.className = 'msb-signal-result loading';
-  resultEl.textContent = '⏳ AI กำลังวิเคราะห์ข้อมูล Google Sheet...';
-  msbSetColDir('msbSheetDir', null);
-
-  const tot  = data.reduce((s,t)=>s+t.usd, 0);
-  const lUsd = data.filter(t=>t.dir==='LONG'||t.dir==='BUY').reduce((s,t)=>s+t.usd, 0);
-  const lPct = tot > 0 ? Math.round(lUsd/tot*100) : 50;
-  const sheetItems = (AN_ALL || []).length;
-
-  if (sheetItems === 0 && data.length === 0) {
-    resultEl.textContent = '⚠️ ยังไม่ได้โหลดข้อมูลจาก Sheet — กด 🔄 โหลดจาก Sheet ใน Analytics tab ก่อน';
-    st.sheetDir = 'NEUTRAL'; st.sheetConf = 25;
-    msbSetBar('msbConfSheet', 'msbConfSheetPct', 25, '');
-    msbSetColDir('msbSheetDir', 'NEUTRAL');
-    return;
-  }
-
-  const coins = {};
-  data.forEach(t=>{ coins[t.coin]=(coins[t.coin]||0)+t.usd; });
-  const topCoins = Object.entries(coins).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([c,u])=>`${c} $${Math.round(u/1000)}K`).join(', ');
-  const recentTrend = buckets.slice(-3).map(b => {
-    const lp = b.total>0 ? Math.round(b.longUsd/b.total*100):50;
-    return `${new Date(b.startMs).toTimeString().slice(0,5)}: ${fcBucketDir(b).toUpperCase()} L${lp}%`;
-  }).join(' → ');
-
-  const prompt = `วิเคราะห์ข้อมูล Whale Trade จาก Google Sheet:
-- รายการทั้งหมด: ${sheetItems} trades (ในช่วงที่เลือก: ${data.length} trades)
-- มูลค่ารวม: $${(tot/1e6).toFixed(2)}M
-- LONG: ${lPct}% | SHORT: ${100-lPct}%
-- เหรียญหลัก: ${topCoins || '—'}
-- Trend ล่าสุด: ${recentTrend || '—'}
-
-ตอบในรูปแบบ (ไทย ไม่เกิน 100 คำ):
-DIRECTION: [BULLISH/BEARISH/NEUTRAL]
-CONFIDENCE: [0-100]
-
-สรุป Whale Bias: (1-2 ประโยค)
-จุดสังเกต: (1-2 ประโยค)`;
-
-  try {
-    const text = await callAIProxy(prompt, 500);
-    const dirM  = text.match(/DIRECTION[:\s]*([A-Z]+)/i);
-    const confM = text.match(/CONFIDENCE[:\s]*(\d+)/i);
-    st.sheetDir  = dirM  ? dirM[1].toUpperCase() : 'NEUTRAL';
-    st.sheetConf = confM ? Math.min(100, parseInt(confM[1])) : 50;
-    st.sheetSummary = text;
-
-    resultEl.className = 'msb-signal-result';
-    resultEl.textContent = text.replace(/^DIRECTION[^\n]*\n?/im,'').replace(/^CONFIDENCE[^\n]*\n?/im,'').trim();
-    msbSetColDir('msbSheetDir', st.sheetDir);
-    msbSetBar('msbConfSheet', 'msbConfSheetPct', st.sheetConf, '');
-  } catch(e) {
-    st.sheetDir = 'NEUTRAL'; st.sheetConf = 20;
-    resultEl.textContent = '❌ ' + e.message;
-    msbSetBar('msbConfSheet', 'msbConfSheetPct', 20, '');
-  }
-}
-
-// ── Step 3: Analyze Live Flow ──
-async function msbAnalyzeLive(data) {
-  const st = window._msbState;
-  const resultEl = document.getElementById('msbLiveResult');
-  resultEl.className = 'msb-signal-result loading';
-  resultEl.textContent = '⏳ AI กำลังวิเคราะห์ Live Flow...';
-  msbSetColDir('msbLiveDir', null);
-
-  const liveTrades = allTrades.filter(t => t.usd >= 100000);
-  const liveVol = liveTrades.reduce((s,t)=>s+t.usd, 0);
-  const liveLong = liveTrades.filter(t=>(t.direction||'').toUpperCase()==='LONG').reduce((s,t)=>s+t.usd, 0);
-  const liveLPct = liveVol > 0 ? Math.round(liveLong/liveVol*100) : 50;
-
-  // Recent 5 mega trades
-  const recentMega = allTrades.filter(t=>t.usd>=1000000).slice(-5)
-    .map(t=>`${t.coin} ${(t.direction||'').toUpperCase()} $${Math.round(t.usd/1000)}K`).join(', ');
-
-  if (liveTrades.length === 0) {
-    resultEl.textContent = '⚠️ ยังไม่มีข้อมูล Live (WebSocket กำลังเชื่อมต่อ...)';
-    st.liveDir = 'NEUTRAL'; st.liveConf = 20;
-    msbSetBar('msbConfLive', 'msbConfLivePct', 20, '');
-    msbSetColDir('msbLiveDir', 'NEUTRAL');
-    return;
-  }
-
-  const prompt = `วิเคราะห์ Live Whale Flow จาก Hyperliquid WebSocket:
-- Trades ≥$100K: ${liveTrades.length} รายการ
-- Long Vol: ${liveLPct}% | Short Vol: ${100-liveLPct}%
-- มูลค่ารวม: $${(liveVol/1e6).toFixed(2)}M
-- Mega trades ล่าสุด ($1M+): ${recentMega || 'ยังไม่มี'}
-- L/S Ratio ปัจจุบัน: ${lV>0&&sV>0?(lV/sV).toFixed(2):'—'}
-
-ตอบ (ไทย ไม่เกิน 100 คำ):
-DIRECTION: [BULLISH/BEARISH/NEUTRAL]
-CONFIDENCE: [0-100]
-
-Sentiment ปัจจุบัน: (1-2 ประโยค)
-สัญญาณ: (1-2 ประโยค)`;
-
-  try {
-    const text = await callAIProxy(prompt, 500);
-    const dirM  = text.match(/DIRECTION[:\s]*([A-Z]+)/i);
-    const confM = text.match(/CONFIDENCE[:\s]*(\d+)/i);
-    st.liveDir  = dirM  ? dirM[1].toUpperCase() : 'NEUTRAL';
-    st.liveConf = confM ? Math.min(100, parseInt(confM[1])) : 50;
-    st.liveSummary = text;
-
-    resultEl.className = 'msb-signal-result';
-    resultEl.textContent = text.replace(/^DIRECTION[^\n]*\n?/im,'').replace(/^CONFIDENCE[^\n]*\n?/im,'').trim();
-    msbSetColDir('msbLiveDir', st.liveDir);
-    msbSetBar('msbConfLive', 'msbConfLivePct', st.liveConf, '');
-  } catch(e) {
-    st.liveDir = 'NEUTRAL'; st.liveConf = 20;
-    resultEl.textContent = '❌ ' + e.message;
-    msbSetBar('msbConfLive', 'msbConfLivePct', 20, '');
-  }
-}
-
-// ── Step 4: Final Synthesis ──
-async function msbSynthesize() {
-  const st = window._msbState;
-  const synthRow   = document.getElementById('msbSynthesisRow');
-  const synthLoad  = document.getElementById('msbSynthLoad');
-  const synthResult= document.getElementById('msbSynthResult');
-  const synthTime  = document.getElementById('msbSynthTime');
-
-  if (synthRow) synthRow.style.display = 'block';
-  if (synthLoad) synthLoad.style.display = 'block';
-  if (synthResult) synthResult.textContent = '';
-
-  // Vote counting
-  const dirs = [st.newsDir, st.sheetDir, st.liveDir];
-  const bulls = dirs.filter(d=>d==='BULLISH').length;
-  const bears = dirs.filter(d=>d==='BEARISH').length;
-  const masterDir = bulls > bears ? 'BULLISH' : bears > bulls ? 'BEARISH' : 'NEUTRAL';
-  const avgConf  = Math.round((st.newsConf + st.sheetConf + st.liveConf) / 3);
-
-  // Update verdict immediately from vote
-  msbSetDirection(masterDir);
-  msbUpdateRing(avgConf);
-  document.getElementById('msbSubtitle').textContent =
-    `สัญญาณรวม: ${masterDir} · ความมั่นใจ ${avgConf}% · อัปเดต ${new Date().toTimeString().slice(0,8)}`;
-
-  // Now get AI final synthesis
-  const prompt = `คุณคือ Master Signal AI สรุปสัญญาณการเทรด crypto จาก 3 แหล่งข้อมูลด้านล่าง
-
-📰 แหล่งที่ 1 — ข่าวเศรษฐกิจ (News):
-Direction: ${st.newsDir} | Confidence: ${st.newsConf}%
-${(st.newsText||'').replace(/^DIRECTION[^\n]*\n?/im,'').replace(/^CONFIDENCE[^\n]*\n?/im,'').trim().slice(0,300)}
-
-📋 แหล่งที่ 2 — Google Sheet (Historical):
-Direction: ${st.sheetDir} | Confidence: ${st.sheetConf}%
-${(st.sheetSummary||'').replace(/^DIRECTION[^\n]*\n?/im,'').replace(/^CONFIDENCE[^\n]*\n?/im,'').trim().slice(0,200)}
-
-⚡ แหล่งที่ 3 — Live Hyperliquid (Real-time):
-Direction: ${st.liveDir} | Confidence: ${st.liveConf}%
-${(st.liveSummary||'').replace(/^DIRECTION[^\n]*\n?/im,'').replace(/^CONFIDENCE[^\n]*\n?/im,'').trim().slice(0,200)}
-
-**สรุป Master Signal (ภาษาไทย ไม่เกิน 180 คำ):**
-1. 🎯 VERDICT: ${masterDir} (ความมั่นใจเฉลี่ย ${avgConf}%) — เหตุผลสำคัญ
-2. 🔗 ความสอดคล้อง: แหล่งข้อมูลทั้ง 3 เห็นตรงกันหรือขัดแย้งกันอย่างไร
-3. ⚡ Action: ควรเข้า Long / Short / รอดู — เงื่อนไข
-4. ⚠️ ความเสี่ยง: ปัจจัยที่อาจทำให้สัญญาณผิดพลาด
-5. ⏰ Timing: ระยะเวลาที่สัญญาณนี้ยังใช้ได้`;
-
-  try {
-    const text = await callAIProxy(prompt, 800);
-    if (synthLoad) synthLoad.style.display = 'none';
-    if (synthResult) { synthResult.textContent = text; }
-    if (synthTime) synthTime.textContent = '🕐 ' + new Date().toTimeString().slice(0,8);
-    if (document.getElementById('msbTimestamp'))
-      document.getElementById('msbTimestamp').textContent = 'อัปเดต: ' + new Date().toTimeString().slice(0,8);
-  } catch(e) {
-    if (synthLoad) synthLoad.style.display = 'none';
-    if (synthResult) synthResult.textContent = '❌ AI Error: ' + e.message;
-  }
-}
-
-// ── MAIN: Run Full Analysis ──
-async function msbRunAnalysis() {
-  if (window._msbState.running) return;
-  window._msbState.running = true;
-
-  const btn = document.getElementById('msbRunBtn');
-  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="msb-spinner"></span> กำลังวิเคราะห์...'; }
-
-  // Reset state
-  msbSetDirection(null);
-  msbUpdateRing(0);
-  document.getElementById('msbSubtitle').textContent = 'กำลังดึงข้อมูลจาก 3 แหล่ง...';
-  document.getElementById('msbNewsStatus').textContent = '⏳ กำลังโหลด...';
-
-  // Also run chart data (fcRun will update the bucket charts below)
-  const startMs = Date.now() - (fcPresetHours || 6) * 3600000;
-  const endMs   = Date.now();
-  const allData    = fcGetData(startMs, endMs, 'ALL');
-  const finalData  = fcCurrentCoin === 'ALL' ? allData : allData.filter(t => t.coin === fcCurrentCoin);
-  const preset = fcPresetHours || 6;
-  const bucketMs6H = preset <= 1 ? 3600000 : preset <= 6 ? 6*3600000 : 12*3600000;
-  const bucketMs1H = preset <= 1 ? 900000  : 3600000;
-  const buckets6H  = fcAggregate(finalData, bucketMs6H);
-  const buckets1H  = fcAggregate(finalData, bucketMs1H);
-  fcRender6H(buckets6H);
-  fcRender1H(buckets1H);
-
-  // Run news fetch if needed
-  const newsText = (document.getElementById('fcNewsText')?.value || '').trim();
-  if (!newsText) {
-    document.getElementById('msbNewsStatus').textContent = '🔄 กำลังดึงข่าว...';
-    await fcFetchEcoCalendar(false);
-    await new Promise(r => setTimeout(r, 800));
-  }
-  document.getElementById('msbNewsStatus').textContent = '✅ พร้อม';
-
-  // Run 3 analyses in parallel for speed
-  await Promise.all([
-    msbAnalyzeNews(),
-    msbAnalyzeSheet(finalData, buckets6H),
-    msbAnalyzeLive(finalData)
-  ]);
-
-  // Final synthesis
-  await msbSynthesize();
-
-  window._msbState.running = false;
-  if (btn) { btn.disabled = false; btn.innerHTML = '🎯 วิเคราะห์ Master Signal'; }
-}
-
-// ════════════════════════════════════════════════════════════════
-// Auto-populate news events display in MSB when fcNewsEventList changes
-const _newsListObs = new MutationObserver(() => {
-  const evList = document.getElementById('fcNewsEventList');
-  const msbEvents = document.getElementById('msbNewsEvents');
-  if (!evList || !msbEvents) return;
-  // Mirror first 5 events as mini chips
-  const chips = Array.from(evList.querySelectorAll('div[style]')).slice(0,5);
-  if (chips.length === 0) return;
-  msbEvents.innerHTML = chips.map(chip => {
-    const nameEl = chip.querySelector('[style*="color:var(--t0)"]');
-    const name = nameEl ? nameEl.textContent.slice(0,22) : '';
-    return `<span style="font-family:var(--mono);font-size:8px;padding:1px 5px;border-radius:3px;background:rgba(255,61,87,.1);color:var(--r);border:1px solid rgba(255,61,87,.2);">🔴 ${name}</span>`;
-  }).join('');
-  // Update news status
-  const badge = document.getElementById('fcNewsStatusBadge');
-  if (badge) document.getElementById('msbNewsStatus').textContent = badge.textContent || '✅';
-});
-document.addEventListener('DOMContentLoaded', () => {
-  const evList = document.getElementById('fcNewsEventList');
-  if (evList) _newsListObs.observe(evList, { childList: true, subtree: true });
-});
 
 </script>
 </body>
