@@ -1244,14 +1244,13 @@ function desktopTab(tab) {
     const fp = document.getElementById('forecastPanel');
     if (fp) fp.style.display = 'flex';
     document.getElementById('dtForecast').classList.add('active');
-    // v16: Auto-fetch economic calendar ทันทีที่เปิด Forecast tab (ครั้งแรกเท่านั้น)
+    // v17: Auto-fetch economic calendar + Sharpe News ทันทีที่เปิด Forecast tab (ครั้งแรกเท่านั้น)
     if (!window._fcNewsAutoFetched) {
       window._fcNewsAutoFetched = true;
-      setTimeout(() => fcFetchAllNews(true), 800);   // v17: รวม ForexFactory + Sharpe
+      setTimeout(() => fcFetchAllNews(true), 800);
     }
-      const b = document.getElementById('fcHlBanner');
-      if (b) { b.style.display='block'; document.getElementById('fcHlBannerTime').textContent = new Date().toTimeString().slice(0,8); }
-    }
+    const b = document.getElementById('fcHlBanner');
+    if (b) { b.style.display='block'; document.getElementById('fcHlBannerTime').textContent = new Date().toTimeString().slice(0,8); }
   }
   // sync forecast tab button active state
   const dtFc = document.getElementById('dtForecast');
