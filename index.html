@@ -2529,26 +2529,40 @@ async function obFetchData() {
   const btn2 = document.getElementById('obRefreshBtnTop');
   [btn1,btn2].forEach(b => { if (b) { b.disabled = true; b.textContent = '⏳ Loading...'; } });
 
+  // แสดง loading ใน OB rows
+  const rowsEl = document.getElementById('obRows');
+  if (rowsEl) rowsEl.innerHTML = '<div class="ob-loading"><span class="ob-spin"></span>กำลังโหลด Order Book...</div>';
+
   const coins = ['BTC','ETH','SOL','BNB','XRP'];
   try {
-    // v22: ใช้ POST แทน GET เพื่อรองรับ raw bids/asks ที่ข้อมูลใหญ่ขึ้น
-    const resp = await fetch(ALERT_CONFIG.appsScriptURL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'getCVDOrderBook', coins }),
-      signal: AbortSignal.timeout(30000),
+    // ใช้ GET แทน POST เพื่อหลีกเลี่ยงปัญหา redirect ของ Google Apps Script
+    // GAS redirect POST→GET ทำให้ body หาย ใช้ GET + query string แทน
+    const coinsParam = coins.join(',');
+    const url = ALERT_CONFIG.appsScriptURL + '?action=getCVDOrderBook&coins=' + encodeURIComponent(coinsParam);
+    const resp = await fetch(url, {
+      method: 'GET',
+      signal: AbortSignal.timeout(60000),
     });
-    const d    = await resp.json();
-    if (d.ok) {
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const text = await resp.text();
+    let d;
+    try { d = JSON.parse(text); } catch(pe) { throw new Error('Parse error: ' + text.slice(0, 100)); }
+    if (d && d.ok) {
       obData = d;
       obRenderAll();
       const ts = document.getElementById('obLastUpdate');
       if (ts) ts.textContent = 'อัปเดต: ' + new Date().toTimeString().slice(0,8);
     } else {
-      console.warn('OB fetch response not ok:', d.error);
+      const errMsg = (d && d.error) ? d.error : 'ไม่ทราบสาเหตุ';
+      console.warn('OB fetch response not ok:', errMsg);
+      if (rowsEl) rowsEl.innerHTML = '<div class="ob-loading" style="color:var(--r);">⚠ โหลดข้อมูลไม่สำเร็จ: ' + errMsg + '</div>';
     }
   } catch(e) {
     console.warn('OB fetch error:', e.message);
+    const errTxt = e.message.includes('timeout') || e.message.includes('abort')
+      ? 'หมดเวลาการเชื่อมต่อ (timeout) — กด Refresh อีกครั้ง'
+      : 'เชื่อมต่อ GAS ไม่ได้: ' + e.message.slice(0, 80);
+    if (rowsEl) rowsEl.innerHTML = '<div class="ob-loading" style="color:var(--r);">⚠ ' + errTxt + '</div>';
   }
   obLoading = false;
   [btn1,btn2].forEach(b => { if (b) { b.disabled = false; b.textContent = '🔄 Refresh Data'; } });
