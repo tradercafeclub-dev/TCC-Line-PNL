@@ -2639,7 +2639,7 @@ function obRenderKpi(coin) {
   const total  = totalB + totalA;
   const depthEl = document.getElementById('obKpiDepth');
   const dSubEl  = document.getElementById('obKpiDepthSub');
-  if (depthEl) { depthEl.textContent = total ? (total > 1000 ? (total/1000).toFixed(2) + 'K' : total.toFixed(0)) + ' ' + coin :}
+  if (depthEl) { depthEl.textContent = total ? (total > 1000 ? (total/1000).toFixed(2) + 'K' : total.toFixed(0)) + ' ' + coin ;
   if (dSubEl)  { dSubEl.textContent = 'Bid: ' + (totalB > 1000 ? (totalB/1000).toFixed(1) + 'K' : totalB.toFixed(0)) + ' · Ask: ' + (totalA > 1000 ? (totalA/1000).toFixed(1) + 'K' : totalA.toFixed(0)); }
 }
 
