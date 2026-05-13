@@ -4311,7 +4311,7 @@ function anRenderHour() {
   if(AN_CH.hour)AN_CH.hour.destroy();
   AN_CH.hour=new Chart(document.getElementById('anHourChart'),{
     type:'bar',
-    data:{labels:show.map(h=>h+':00'),datasets:[{label:'รายการ',data:show.map(h=>hc[h]||0),backgroundColor:show.map(h=>{const r=(hc[h]||0)/maxC;return r===0?'rgba(41,182,246,0.08)':r<0.3?'rgba(41,182,246,0.3)':r<0.6?'rgba(41,182,246,0.6)':'var(--b)';})}]},
+    data:{labels:show.map(h=>h+':00'),datasets:[{label:'รายการ',data:show.map(h=>hc[h]||0),backgroundColor:show.map(h=>{const r=(hc[h]||0)/maxC;return r===0?'rgba(41,182,246,0.08)':r<0.3?'rgba(41,182,246,0.3)':r<0.6?'rgba(41,182,246,0.6)':'rgba(41,182,246,1)';})}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{x:{ticks:{color:tc,font:{size:9},autoSkip:false,maxRotation:45},grid:{display:false}},
               y:{ticks:{color:tc,font:{size:10},stepSize:1},grid:{color:gc}}}}
